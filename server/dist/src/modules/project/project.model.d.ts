@@ -1,9 +1,10 @@
-import type { User } from '@/modules/user/user.model.js';
 export interface Project {
     id: string;
     name: string;
     color: string;
-    owner: User;
-    collaborators: User[];
+    invitation: string;
+    taskCount: number;
+    ownerID: string;
     createdAt: string;
+    updatedAt: string;
 }

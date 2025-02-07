@@ -1,10 +1,11 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Formik, Form, FieldProps, Field } from 'formik';
 import { TextInput, Button, ColorInput } from '@mantine/core';
 import * as Yup from 'yup';
 import type { Project } from '@graphql/project/types';
-import { CREATE_PROJECT } from '@graphql/project/mutations';
+import { GET_ME } from '@graphql/user/queries';
 import { GET_PROJECTS } from '@graphql/project/queries';
+import { CREATE_PROJECT } from '@graphql/project/mutations';
 
 interface FormValues {
   name: string;
@@ -17,17 +18,22 @@ const formValidation = Yup.object({
 });
 
 export const CreateProject = () => {
+  const { data } = useQuery(GET_ME);
+  const meData = data?.me;
+
   const [createProject, { loading, error }] = useMutation(CREATE_PROJECT, {
     update(cache, { data: { createProject } }) {
-      const existingProjects = cache.readQuery<{ getProjects: Project[] }>({
+      const existingProjects = cache.readQuery<{ projects: Project[] }>({
         query: GET_PROJECTS,
+        variables: { ownerID: meData?.id },
       });
 
       cache.writeQuery({
         query: GET_PROJECTS,
+        variables: { ownerID: meData?.id },
         data: {
-          getProjects: [
-            ...(existingProjects?.getProjects || []),
+          projects: [
+            ...(existingProjects?.projects || []),
             createProject,
           ],
         },

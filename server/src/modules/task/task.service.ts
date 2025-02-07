@@ -44,6 +44,8 @@ export class TaskService {
   }
 
   async createTask(task: Task): Promise<Task> {
+    await pool.query('BEGIN');
+    
     const result = await pool.query(
       'INSERT INTO tasks (title, description, status, project_id, assignee_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [
@@ -62,7 +64,13 @@ export class TaskService {
       });
     }
 
-    console.log('createdTask', createdTask);
+    await pool.query(
+      'UPDATE projects SET task_count = task_count + 1 WHERE id = $1',
+      [task.projectID]
+    );
+
+    await pool.query('COMMIT');
+
     await pubsub.publish(EVENTS.TASK_CREATED, {
       taskCreated: {
         ...createdTask,

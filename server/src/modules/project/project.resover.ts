@@ -10,15 +10,8 @@ export const projectResolvers = {
     project: async (_: never, { projectID }: { projectID: string }) => {
       return await projectService.getProject(projectID);
     },
-    getOwnProjects: async (_: never, { ownerID }: { ownerID: string }) => {
-      return await projectService.getOwnProjects(ownerID);
-    },
-    getProjects: async (_: never, __: any, context: Context) => {
-      if (!context.user) {
-        throw new Error('Unauthorized');
-      }
-
-      return await projectService.getProjects(context.user.id);
+    projects: async (_: never, { ownerID }: { ownerID: string }) => {
+      return await projectService.getProjects(ownerID);
     },
   },
   Mutation: {

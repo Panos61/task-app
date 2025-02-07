@@ -10,64 +10,84 @@ export const typeDefs = gql `
     token: String!
     user: User!
   }
-  
-  type Project { 
+
+  type Project {
     id: String!
     name: String!
     color: String!
-    owner_id: String!
+    invitation: String!
+    owner_id: ID!
+    taskCount: Int!
     created_at: String!
     updated_at: String!
   }
-  
+
   type Task {
-    id: String!
-    title: String!
+    id: ID!
+    title: String
     description: String
-    status: String!
-    projectID: String!
-    assigneeID: String!
-    created_at: String!
+    status: String
+    projectID: ID
+    assigneeID: ID
+    created_at: String
     updated_at: String
   }
-  
-  input TaskInput {
-    title: String!
-    description: String
-    status: String!
-    projectID: String!
-    assigneeID: String!
-  }
-  
-  input RegisterInput {
+
+  input AuthInput {
     username: String!
     password: String!
   }
 
-  input LoginInput {
-    username: String!
-    password: String!
-  }
-  
-  input CreateProjectInput {
+  input ProjectInput {
     name: String!
     color: String!
   }
-  
+
+  input TaskInput {
+    id: ID
+    title: String
+    description: String
+    status: String
+    projectID: String
+    assigneeID: String
+  }
+
   type Query {
     me: User!
-    users: [User!]!
-    getProjects(ownerID: ID!): [Project]!
-    getTasks(projectID: ID!): [Task]!
+    users(projectID: ID!): [User!]!
+    project(projectID: ID!): Project!
+    projects(ownerID: ID!): [Project]!
+    task(id: ID!): Task!
+    tasks(projectID: ID!): [Task]!
     getAssignedTasks(assigneeID: ID!): [Task]!
   }
-  
+
   type Mutation {
-    register(input: RegisterInput!): AuthPayload!
-    login(input: LoginInput!): AuthPayload!
+    register(input: AuthInput!): AuthPayload!
+    login(input: AuthInput!): AuthPayload!
     logout: Boolean!
     deleteAccount: Boolean!
-    createProject(input: CreateProjectInput): Project!
-    createTask(input: TaskInput): Task!
+    createProject(input: ProjectInput): Project!
+    joinProject(invitation: String!): Project!
+    deleteProject(projectID: ID!): Boolean!
+    createTask(input: TaskInput): Task
+    updateTask(input: TaskInput): Task
+    deleteTask(taskID: ID!): Boolean!
+  }
+
+  type Subscription {
+    taskCreated(
+      projectID: ID!
+      title: String!
+      description: String
+      status: String
+    ): Task!
+    taskUpdated(
+      projectID: ID!
+      title: String!
+      description: String!
+      status: String!
+    ): Task!
+    taskDeleted(taskID: ID!): ID!
   }
 `;

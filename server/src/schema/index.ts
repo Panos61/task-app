@@ -17,20 +17,10 @@ export const typeDefs = gql`
     name: String!
     color: String!
     invitation: String!
-    owner_id: String!
+    owner_id: ID!
     taskCount: Int!
     created_at: String!
     updated_at: String!
-  }
-
-  input AuthInput {
-    username: String!
-    password: String!
-  }
-
-  input CreateProjectInput {
-    name: String!
-    color: String!
   }
 
   type Task {
@@ -42,6 +32,16 @@ export const typeDefs = gql`
     assigneeID: ID
     created_at: String
     updated_at: String
+  }
+
+  input AuthInput {
+    username: String!
+    password: String!
+  }
+
+  input ProjectInput {
+    name: String!
+    color: String!
   }
 
   input TaskInput {
@@ -57,8 +57,7 @@ export const typeDefs = gql`
     me: User!
     users(projectID: ID!): [User!]!
     project(projectID: ID!): Project!
-    getOwnProjects(ownerID: ID!): [Project]!
-    getProjects: [Project]!
+    projects(ownerID: ID!): [Project]!
     task(id: ID!): Task!
     tasks(projectID: ID!): [Task]!
     getAssignedTasks(assigneeID: ID!): [Task]!
@@ -69,7 +68,7 @@ export const typeDefs = gql`
     login(input: AuthInput!): AuthPayload!
     logout: Boolean!
     deleteAccount: Boolean!
-    createProject(input: CreateProjectInput): Project!
+    createProject(input: ProjectInput): Project!
     joinProject(invitation: String!): Project!
     deleteProject(projectID: ID!): Boolean!
     createTask(input: TaskInput): Task

@@ -1,7 +1,10 @@
 import type { Task } from './task.model.js';
 export declare const taskResolvers: {
     Query: {
-        getTasks: (_: any, { projectID }: {
+        task: (_: any, { id }: {
+            id: string;
+        }) => Promise<Task>;
+        tasks: (_: any, { projectID }: {
             projectID: string;
         }) => Promise<Task[]>;
         getAssignedTasks: (_: any, { assigneeID }: {
@@ -12,5 +15,22 @@ export declare const taskResolvers: {
         createTask: (_: any, { input }: {
             input: Task;
         }) => Promise<Task>;
+        updateTask: (_: any, { input }: {
+            input: Task;
+        }) => Promise<Task>;
+        deleteTask: (_: any, { taskID }: {
+            taskID: string;
+        }) => Promise<boolean>;
+    };
+    Subscription: {
+        taskCreated: {
+            subscribe: import("graphql-subscriptions").IterableResolverFn<any, any, any>;
+        };
+        taskUpdated: {
+            subscribe: import("graphql-subscriptions").IterableResolverFn<any, any, any>;
+        };
+        taskDeleted: {
+            subscribe: import("graphql-subscriptions").IterableResolverFn<any, any, any>;
+        };
     };
 };
