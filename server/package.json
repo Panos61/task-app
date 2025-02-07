@@ -1,0 +1,45 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc --sourceMap false --noEmit false"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@apollo/server": "^4.11.3",
+    "@graphql-tools/schema": "^10.0.16",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "graphql": "^16.10.0",
+    "graphql-subscriptions": "^3.0.0",
+    "graphql-tag": "^2.12.6",
+    "graphql-ws": "^6.0.3",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.7",
+    "@types/pg": "^8.11.10",
+    "@types/ws": "^8.5.14",
+    "module-alias": "^2.2.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "_moduleAliases": {
+    "@": "./dist"
+  }
+}
