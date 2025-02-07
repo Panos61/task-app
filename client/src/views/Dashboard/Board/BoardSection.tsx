@@ -6,7 +6,8 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useFormikContext } from 'formik';
+import { Formik, FormikProvider, useFormikContext } from 'formik';
+import * as Yup from 'yup';
 import { useOnClickOutside } from 'usehooks-ts';
 import { PlusIcon } from 'lucide-react';
 
@@ -23,8 +24,15 @@ interface Props {
   id: string;
   title: string;
   tasks: Task[];
-  setBoardSections: (sections: BoardSections) => void;
+  setBoardSections: React.Dispatch<React.SetStateAction<BoardSections>>;
 }
+
+const taskValidationSchema = Yup.object({
+  title: Yup.string().required('Title is required'),
+  description: Yup.string(),
+  assignee: Yup.string(),
+});
+
 
 const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
   const [currentTaskID, setCurrentTaskID] = useState<string | null>(null);
@@ -37,7 +45,7 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
   const { setNodeRef } = useDroppable({
     id,
   });
-  const { values, setFieldValue } = useFormikContext<Task>();
+  const { values } = useFormikContext<Task>();
 
   const [createTask] = useMutation(CREATE_TASK, {
     update(cache, { data: { createTask } }) {
@@ -74,6 +82,15 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
       });
     },
     onCompleted: () => {
+      setBoardSections((prev: BoardSections) => {
+        const newSections = { ...prev } as BoardSections;
+        Object.keys(newSections).forEach((key) => {
+          newSections[key] = newSections[key].filter(
+            (task) => task.id !== currentTaskID
+          );
+        });
+        return newSections;
+      });
       setCurrentTaskID(null);
     },
   });
@@ -100,17 +117,17 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
   };
 
   const handleTaskRemoval = () => {
-    console.log('Removing task with ID:', currentTaskID);
     deleteTask({
       variables: { taskID: currentTaskID },
       onCompleted: () => {
         setBoardSections((prev: BoardSections) => {
-          const newSections: BoardSections = { ...prev };
+          const newSections = { ...prev } as BoardSections;
           Object.keys(newSections).forEach((key) => {
             newSections[key] = newSections[key].filter(
               (task) => task.id !== currentTaskID
             );
           });
+
           return newSections;
         });
         setCurrentTaskID(null);
@@ -143,16 +160,29 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
         >
           <div ref={setNodeRef}>
             {tasks.map((task) => (
-              <div key={task.id} ref={taskRef}>
-                <SortableTaskItem id={task.id}>
-                  <TaskItem
-                    id={task.id}
-                    task={task}
-                    values={values}
-                    setFieldValue={setFieldValue}
-                  />
-                </SortableTaskItem>
-              </div>
+              <Formik
+                key={task.id}
+                initialValues={{
+                  title: task.title,
+                  status: task.status,
+                  description: task.description,
+                  priority: task.priority,
+                  assigneeID: task.assigneeID,
+                }}
+                validationSchema={taskValidationSchema}
+                enableReinitialize
+                onSubmit={() => {}}
+              >
+                {(formikProps) => (
+                  <FormikProvider value={formikProps}>
+                    <div ref={taskRef}>
+                      <SortableTaskItem id={task.id}>
+                        <TaskItem id={task.id} task={task} />
+                      </SortableTaskItem>
+                    </div>
+                  </FormikProvider>
+                )}
+              </Formik>
             ))}
           </div>
         </SortableContext>

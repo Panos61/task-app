@@ -11,7 +11,7 @@ export class TaskService {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
       });
     }
-  
+
     return result.rows[0];
   }
 
@@ -45,13 +45,14 @@ export class TaskService {
 
   async createTask(task: Task): Promise<Task> {
     await pool.query('BEGIN');
-    
+
     const result = await pool.query(
-      'INSERT INTO tasks (title, description, status, project_id, assignee_id) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      'INSERT INTO tasks (title, description, status, priority, project_id, assignee_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
       [
         task.title,
         task.description,
         task.status,
+        task.priority,
         task.projectID,
         task.assigneeID || null,
       ]
@@ -84,6 +85,7 @@ export class TaskService {
       title: createdTask.title,
       description: createdTask.description,
       status: createdTask.status,
+      priority: createdTask.priority,
       projectID: createdTask.project_id,
       assigneeID: createdTask.assignee_id,
       createdAt: createdTask.created_at,
@@ -99,15 +101,17 @@ export class TaskService {
         SET title = COALESCE($1, title),
          description = COALESCE($2, description),
          status = COALESCE($3, status),
-         assignee_id = COALESCE($4, assignee_id),
-         project_id = COALESCE($5, project_id),
-         updated_at = $6
-        WHERE id = $7 
+         priority = COALESCE($4, priority),
+         assignee_id = COALESCE($5, assignee_id),
+         project_id = COALESCE($6, project_id),
+         updated_at = $7
+        WHERE id = $8
        RETURNING *`,
       [
         task.title,
         task.description,
         task.status,
+        task.priority,
         task.assigneeID,
         task.projectID,
         timestamp,
@@ -128,6 +132,7 @@ export class TaskService {
       title: updatedTask.title,
       description: updatedTask.description,
       status: updatedTask.status,
+      priority: updatedTask.priority,
       projectID: updatedTask.project_id,
       assigneeID: updatedTask.assignee_id,
       createdAt: updatedTask.created_at,

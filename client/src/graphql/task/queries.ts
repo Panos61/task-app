@@ -7,6 +7,7 @@ export const GET_TASK = gql`
       title
       description
       status
+      priority
       assigneeID
       projectID
     }
@@ -20,6 +21,7 @@ export const GET_TASKS = gql`
       title
       description
       status
+      priority
       assigneeID
       projectID
     }
@@ -33,6 +35,7 @@ export const GET_ASSIGNED_TASKS = gql`
       title
       description
       status
+      priority
       assigneeID
       projectID
     }

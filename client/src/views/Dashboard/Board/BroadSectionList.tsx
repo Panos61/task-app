@@ -6,7 +6,6 @@ import {
   useSensors,
   useSensor,
   PointerSensor,
-  KeyboardSensor,
   DndContext,
   closestCorners,
   DragEndEvent,
@@ -16,7 +15,7 @@ import {
   DropAnimation,
   defaultDropAnimation,
 } from '@dnd-kit/core';
-import { sortableKeyboardCoordinates, arrayMove } from '@dnd-kit/sortable';
+import { arrayMove } from '@dnd-kit/sortable';
 import { Divider, Skeleton } from '@mantine/core';
 import { useClipboard } from '@mantine/hooks';
 import { CopyIcon } from 'lucide-react';
@@ -37,7 +36,7 @@ import { UPDATE_TASK } from '@graphql/task/mutations';
 const BoardSectionList = () => {
   const { pathname } = useLocation();
   const projectID = pathname.split('/')[3];
-  
+
   const clipboard = useClipboard({ timeout: 500 });
 
   const { data } = useQuery(GET_TASKS, {
@@ -59,7 +58,7 @@ const BoardSectionList = () => {
   // const backlogTasks = boardSections['backlog'].filter(
   //   (task) => task.status === 'backlog'
   // );
-  
+
   // const inProgressTasks = boardSections['inprogress'].filter(
   //   (task) => task.status === 'inprogress'
   // );
@@ -101,9 +100,6 @@ const BoardSectionList = () => {
         delay: 200,
         distance: 10,
       },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
@@ -193,7 +189,7 @@ const BoardSectionList = () => {
           overIndex
         ),
       }));
-      
+
       const input = {
         id: parseInt(task.id),
         title: task.title,
@@ -216,61 +212,65 @@ const BoardSectionList = () => {
     return <Skeleton height={12} mt={12} ml={72} width='16%' radius='xl' />;
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
-      <div className='flex items-center gap-12 mb-[10px] ml-72'>
-        <div className='flex gap-8 items-center'>
-          <div
-            className='size-16 rounded-4'
-            style={{ backgroundColor: project?.color }}
-          />
-          <span className='text-xl font-bold'>{project?.name}</span>
-        </div>
-        <div
-          className='flex gap-8 items-center cursor-pointer'
-          onClick={() => {
-            clipboard.copy(project?.invitation);
-          }}
+    <Formik initialValues={{}} onSubmit={() => {}}>
+      {() => (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
         >
-          {clipboard.copied ? (
-            <span className='text-sm text-gray-400/95'>Copied</span>
-          ) : (
-            <>
-              <span className='text-sm text-gray-400/95'>
-                {project?.invitation}
-              </span>
-              <CopyIcon size={16} className='text-gray-400/95' />
-            </>
-          )}
-        </div>
-      </div>
-      <Divider className='mb-12' />
-      <div className='grid grid-cols-3 gap-4 ml-68'>
-        {Object.keys(boardSections).map((boardSectionKey) => (
-          <div className='w-[400px]' key={boardSectionKey}>
-            <Formik
-              initialValues={{ title: task?.title, status: task?.status }}
-              onSubmit={() => {}}
-            >
-              <BoardSection
-                id={boardSectionKey}
-                title={boardSectionKey}
-                tasks={boardSections[boardSectionKey]}
-                setBoardSections={setBoardSections}
+          <div className='flex items-center gap-12 mb-[10px] ml-72'>
+            <div className='flex gap-8 items-center'>
+              <div
+                className='size-16 rounded-4'
+                style={{ backgroundColor: project?.color }}
               />
-            </Formik>
+              <span className='text-xl font-bold'>{project?.name}</span>
+            </div>
+            <div
+              className='flex gap-8 items-center cursor-pointer'
+              onClick={() => {
+                clipboard.copy(project?.invitation);
+              }}
+            >
+              {clipboard.copied ? (
+                <span className='text-sm text-gray-400/95'>Copied</span>
+              ) : (
+                <>
+                  <span className='text-sm text-gray-400/95'>
+                    {project?.invitation}
+                  </span>
+                  <CopyIcon size={16} className='text-gray-400/95' />
+                </>
+              )}
+            </div>
           </div>
-        ))}
-        <DragOverlay dropAnimation={dropAnimation}>
-          {task && <TaskItem id={task.id} task={task} />}
-        </DragOverlay>
-      </div>
-    </DndContext>
+          <Divider className='mb-12' />
+          <div className='grid grid-cols-3 gap-4 ml-68'>
+            {Object.keys(boardSections).map((boardSectionKey) => (
+              <div className='w-[400px]' key={boardSectionKey}>
+                <Formik
+                  initialValues={{ title: task?.title, status: task?.status }}
+                  onSubmit={() => {}}
+                >
+                  <BoardSection
+                    id={boardSectionKey}
+                    title={boardSectionKey}
+                    tasks={boardSections[boardSectionKey]}
+                    setBoardSections={setBoardSections}
+                  />
+                </Formik>
+              </div>
+            ))}
+            <DragOverlay dropAnimation={dropAnimation}>
+              {task && <TaskItem id={task.id} task={task} />}
+            </DragOverlay>
+          </div>
+        </DndContext>
+      )}
+    </Formik>
   );
 };
 

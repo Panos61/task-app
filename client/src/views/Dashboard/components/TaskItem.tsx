@@ -1,30 +1,26 @@
 import { useState } from 'react';
-import { useMutation, useSubscription } from '@apollo/client';
-import { useLocation } from 'react-router';
+import { useMutation } from '@apollo/client';
+import { useFormikContext } from 'formik';
+import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Avatar, Drawer } from '@mantine/core';
+import { Avatar, Badge, Drawer } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Check } from 'lucide-react';
 
 import type { Task } from '@graphql/task/types';
 import { UPDATE_TASK } from '@graphql/task/mutations';
-import { TASK_CREATED_SUBSCRIPTION } from '@graphql/task/subscriptions';
+
+import { useDebounce } from '../useDebounce';
 import Celebration from './Celebration';
 import TaskDrawer from './TaskDrawer';
-import classNames from 'classnames';
 
 interface Props {
   id: string;
   task: Task;
-  values: { title: string; status: string };
-  setFieldValue?: (field: string, value: string) => void;
 }
 
-const TaskItem = ({ id, task, values, setFieldValue }: Props) => {
-  const { pathname } = useLocation();
-  const projectID = pathname.split('/')[3];
-
+const TaskItem = ({ id, task }: Props) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -32,51 +28,31 @@ const TaskItem = ({ id, task, values, setFieldValue }: Props) => {
   const [displayInput, setDisplayInput] = useState(true);
   const [showCelebration, setShowCelebration] = useState(false);
 
-  useSubscription(TASK_CREATED_SUBSCRIPTION, {
-    variables: {
-      projectID,
-      title: '',
-      description: '',
-      status: task.status,
-    },
-    onData: ({ data }) => {
-      console.log('Task created data:', data);
-    },
-  });
+  const { values, setFieldValue } = useFormikContext<Task>();
 
   const [updateTask] = useMutation(UPDATE_TASK);
 
-  const handleTitleChange = (value: string) => {
-    if (setFieldValue) {
-      setFieldValue('title', value);
-    }
-
-    const timeoutId = setTimeout(() => {
-      updateTask({
-        variables: {
-          input: {
-            id: parseInt(task.id),
-            title: task.title || '',
-          },
+  const debouncedUpdate = useDebounce((updates: Partial<Task>) => {
+    updateTask({
+      variables: {
+        input: {
+          id: parseInt(task.id),
+          ...updates,
         },
-      });
-    }, 500);
+      },
+    });
+  }, 500);
 
-    return () => clearTimeout(timeoutId);
+  const handleTitleChange = (value: string) => {
+    setFieldValue('title', value);
+    debouncedUpdate({ title: value });
   };
 
   const handleCheck = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
-    updateTask({
-      variables: {
-        input: {
-          id: parseInt(task.id),
-          status: 'done',
-        },
-      },
-    });
+
+    debouncedUpdate({ status: 'done' });
     setShowCelebration(true);
   };
 
@@ -117,36 +93,54 @@ const TaskItem = ({ id, task, values, setFieldValue }: Props) => {
         {...attributes}
         {...listeners}
       >
-        <div className='flex flex=wrap flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-400/20 bg-gray-700/25 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-400/50'>
-          <div className='flex flex-wrap gap-8 mx-12'>
-            <div className={checkStyle} onClick={handleCheck}>
-              <Check className='relative inset-0 m-auto size-full text-gray-400/95 duration-300 hover:!text-green-700' />
-            </div>
-            <div
-              className='flex-1 flex-wrap'
-              onClick={() => setDisplayInput(true)}
-            >
-              {displayInput ? (
-                <textarea
-                  rows={1}
-                  placeholder='Write a task name'
-                  defaultValue={task.title}
-                  className='basis-full w-full h-auto mr-1 resize-none outline-none overflow-hidden bg-transparent'
-                  autoFocus
-                  onChange={(e) => {
-                    handleTitleChange(e.target.value);
-                    e.target.style.height = 'auto';
-                    e.target.style.height = e.target.scrollHeight + 'px';
-                  }}
+        <div className='flex flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-400/20 bg-gray-700/25 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-400/50'>
+          <div className='flex flex-col gap-4 ml-16'>
+            <div className='flex gap-8 mr-12'>
+              <div className={checkStyle} onClick={handleCheck}>
+                <Check
+                  size={16}
+                  className='relative inset-0 m-auto size-full text-gray-400/95 duration-300 hover:!text-green-700'
                 />
-              ) : (
-                <h3>{task.title}</h3>
-              )}
+              </div>
+              <div className='flex-1' onClick={() => setDisplayInput(true)}>
+                {displayInput ? (
+                  <textarea
+                    rows={1}
+                    placeholder='Write a task name'
+                    value={values.title}
+                    className='basis-full w-full h-auto mr-1 resize-none outline-none overflow-hidden bg-transparent'
+                    autoFocus
+                    onChange={(e) => {
+                      handleTitleChange(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
+                  />
+                ) : (
+                  <h3>{values.title}</h3>
+                )}
+              </div>
             </div>
+            {task.priority && (
+              <Badge
+                className='mb-8'
+                color={
+                  task.priority === 'low'
+                    ? 'blue'
+                    : task.priority === 'medium'
+                    ? 'yellow'
+                    : 'violet'
+                }
+                variant='light'
+                radius='sm'
+              >
+                {task.priority?.toUpperCase()}
+              </Badge>
+            )}
+            <Avatar color='cyan' radius='xl' size={24}>
+              MK
+            </Avatar>
           </div>
-          <Avatar color='cyan' radius='xl' className='ml-16' size={28}>
-            MK
-          </Avatar>
         </div>
         <Celebration
           isVisible={showCelebration}

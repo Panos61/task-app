@@ -28,6 +28,7 @@ export const typeDefs = gql`
     title: String
     description: String
     status: String
+    priority: String
     projectID: ID
     assigneeID: ID
     created_at: String
@@ -49,6 +50,7 @@ export const typeDefs = gql`
     title: String
     description: String
     status: String
+    priority: String
     projectID: String
     assigneeID: String
   }
