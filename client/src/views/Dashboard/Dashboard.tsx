@@ -1,3 +1,5 @@
+import { useQuery } from '@apollo/client';
+import { Outlet, useNavigate } from 'react-router';
 import {
   AppShell,
   Burger,
@@ -9,12 +11,10 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { LayoutDashboardIcon, PlusIcon } from 'lucide-react';
-import { useQuery } from '@apollo/client';
-import { Outlet, useNavigate } from 'react-router';
 
 import { GET_ME } from '@graphql/user/queries';
-import { ProjectList, UserAccount } from './components';
 import { GET_PROJECTS } from '@graphql/project/queries';
+import { ProjectList, UserAccount } from './components';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -23,11 +23,13 @@ export const Dashboard = () => {
 
   const { data } = useQuery(GET_ME);
   const meData = data?.me;
+  console.log('meData', meData);
 
-  const { data: projectsData, loading: projectsLoading } =
-    useQuery(GET_PROJECTS);
+  const { data: projectsData, loading: projectsLoading } = useQuery(GET_PROJECTS, {
+    variables: { ownerID: meData?.id },
+  });
 
-  const projects = projectsData?.getProjects;
+  const projects = projectsData?.projects;
   console.log('projects', projects);
 
   const renderProjectList = () => {

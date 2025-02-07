@@ -3,8 +3,8 @@ export interface Project {
   name: string;
   color: string;
   invitation: string;
-  ownerID: string;
   taskCount: number;
+  ownerID: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -12,21 +12,9 @@ export const GET_PROJECT = gql`
   }
 `;
 
-export const GET_OWN_PROJECTS = gql`
-  query GetOwnProjects($ownerID: ID! ) {
-    getOwnProjects(ownerID: $ownerID) {
-      id
-      name
-      color
-      invitation
-      taskCount
-    }
-  }
-`
-
 export const GET_PROJECTS = gql`
-  query GetProjects {
-    getProjects {
+  query projects($ownerID: ID! ) {
+    projects(ownerID: $ownerID) {
       id
       name
       color

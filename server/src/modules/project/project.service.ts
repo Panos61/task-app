@@ -4,6 +4,45 @@ import pool from '@/utils/database.js';
 import { generateInvitationCode } from '@/utils/invitation.js';
 
 export class ProjectService {
+  async getProject(projectID: string): Promise<Project> {
+    const result = await pool.query('SELECT * FROM projects WHERE id=$1', [
+      projectID,
+    ]);
+
+    if (!result.rows[0]) {
+      throw new GraphQLError('Project not found', {
+        extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
+      });
+    }
+
+    return {
+      ...result.rows[0],
+      taskCount: result.rows[0].task_count,
+    };
+  }
+
+  async getProjects(ownerID: string): Promise<Project[]> {
+    const result = await pool.query(
+      'SELECT project_id FROM project_users WHERE user_id = $1',
+      [ownerID]
+    );
+
+    const projectIDs = result.rows.map((row) => row.project_id);
+    if (projectIDs.length === 0) {
+      return [];
+    }
+
+    const projects = await pool.query(
+      'SELECT * FROM projects WHERE id = ANY($1::uuid[])',
+      [projectIDs]
+    );
+    
+    return projects.rows.map(project => ({
+      ...project,
+      taskCount: project.task_count
+    }));
+  }
+
   async createProject(
     name: string,
     color: string,
@@ -68,69 +107,13 @@ export class ProjectService {
     return project;
   }
 
-  async getProject(projectID: string): Promise<Project> {
-    const result = await pool.query('SELECT * FROM projects WHERE id=$1', [
-      projectID,
-    ]);
-
-    if (!result.rows[0]) {
-      throw new GraphQLError('Project not found', {
-        extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
-      });
-    }
-
-    // const taskCountResult = await pool.query(
-    //   'SELECT COUNT(*) FROM tasks WHERE project_id = $1',
-    //   [projectID]
-    // );
-    // const taskCount = taskCountResult.rows[0].count;
-
-    return result.rows[0];
-    // taskCount,
-    // };
-  }
-
-  async getOwnProjects(ownerID: string): Promise<Project[]> {
-    const result = await pool.query(
-      'SELECT * FROM projects WHERE owner_id=$1',
-      [ownerID]
-    );
-    if (!result.rows[0]) {
-      throw new GraphQLError('Projects not found', {
-        extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
-      });
-    }
-
-    return result.rows;
-  }
-
-  async getProjects(userID: string): Promise<Project[]> {
-    const result = await pool.query(
-      'SELECT project_id FROM project_users WHERE user_id = $1',
-      [userID]
-    );
-
-    const projectIDs = result.rows.map((row) => row.project_id);
-
-    if (projectIDs.length === 0) {
-      return [];
-    }
-
-    const projects = await pool.query(
-      'SELECT * FROM projects WHERE id = ANY($1::uuid[])',
-      [projectIDs]
-    );
-
-    return projects.rows;
-  }
-
   async deleteProject(projectID: string, userID: string): Promise<boolean> {
     console.log(projectID, userID);
     const ownerResult = await pool.query<{ owner_id: string }>(
       'SELECT owner_id FROM projects WHERE id=$1',
       [projectID]
     );
-    console.log(ownerResult.rows.length);
+
     if (ownerResult.rows.length === 0) {
       throw new GraphQLError('Project not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
@@ -138,6 +121,7 @@ export class ProjectService {
     }
 
     const ownerID = ownerResult.rows[0].owner_id;
+    console.log(ownerID, userID);
     if (ownerID !== userID) {
       throw new GraphQLError('You are not the owner of this project', {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
@@ -145,7 +129,6 @@ export class ProjectService {
     }
 
     await pool.query('DELETE FROM projects WHERE id=$1', [projectID]);
-
     return true;
   }
 }

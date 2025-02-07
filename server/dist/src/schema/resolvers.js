@@ -12,4 +12,7 @@ export const resolvers = {
         ...projectResolvers.Mutation,
         ...taskResolvers.Mutation,
     },
+    Subscription: {
+        ...taskResolvers.Subscription,
+    },
 };

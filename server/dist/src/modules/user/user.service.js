@@ -15,6 +15,10 @@ export class UserService {
         }
         return user;
     }
+    async getUsers(projectID) {
+        const result = await pool.query('SELECT * FROM users INNER JOIN project_users ON users.id = project_users.user_id WHERE project_users.project_id = $1', [projectID]);
+        return result.rows;
+    }
     async register(username, password) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await pool.query('INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *', [username, hashedPassword]);

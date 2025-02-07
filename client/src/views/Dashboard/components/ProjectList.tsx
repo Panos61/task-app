@@ -25,7 +25,7 @@ const ProjectCard = ({ project }: Props) => {
     update(cache) {
       cache.modify({
         fields: {
-          getProjects(existingProjects = []) {
+          projects(existingProjects = []) {
             return existingProjects.filter((projRef: { __ref: string }) => {
               const projId = cache.identify({
                 id: project.id,
@@ -83,7 +83,7 @@ const ProjectCard = ({ project }: Props) => {
         <h3>{project.name}</h3>
         <Divider orientation='vertical' />
         <span className='text-xs'>
-          Tasks: <span className='font-bold text-text-primary'>15</span>
+          Tasks: <span className='font-bold text-text-primary'>{project.taskCount}</span>
         </span>
         {isHover && (
           <Trash

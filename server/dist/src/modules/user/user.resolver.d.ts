@@ -1,8 +1,11 @@
-import type { LoginInput, RegisterInput } from './user.model.js';
 import type { Context } from '@/index.js';
+import type { LoginInput, RegisterInput } from './user.model.js';
 export declare const userResolvers: {
     Query: {
         me: (_: never, __: never, context: Context) => Promise<import("./user.model.js").User>;
+        users: (_: never, { projectID }: {
+            projectID: string;
+        }, context: Context) => Promise<import("./user.model.js").User[]>;
     };
     Mutation: {
         register: (_: any, { input }: {

@@ -72,7 +72,7 @@ const BoardSectionList = () => {
   const { data: projectData, loading: projectLoading } = useQuery(GET_PROJECT, {
     variables: { projectID },
   });
-  const project = projectData?.getProject;
+  const project = projectData?.project;
 
   const [updateTask] = useMutation(UPDATE_TASK, {
     // update(cache) {

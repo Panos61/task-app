@@ -11,6 +11,14 @@ export const userResolvers = {
             }
             return await userService.me(context.user.id);
         },
+        users: async (_, { projectID }, context) => {
+            if (!context.user) {
+                throw new GraphQLError('Not authenticated', {
+                    extensions: { code: 'UNAUTHENTICATED', http: { status: 401 } },
+                });
+            }
+            return await userService.getUsers(projectID);
+        },
     },
     Mutation: {
         register: async (_, { input }) => {
