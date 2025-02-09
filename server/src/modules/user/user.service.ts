@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
-import type { User } from './user.model.js';
+import type { User, Overview } from './user.model.js';
 import pool from '@/utils/database.js';
 
 export class UserService {
@@ -9,7 +9,7 @@ export class UserService {
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [
       userID,
     ]);
-    
+
     const user = result.rows[0];
     if (!user) {
       throw new GraphQLError('User not found', {
@@ -25,8 +25,45 @@ export class UserService {
       'SELECT * FROM users INNER JOIN project_users ON users.id = project_users.user_id WHERE project_users.project_id = $1',
       [projectID]
     );
+    
+    const users = result.rows;
+    return users.map((user) => ({
+      ...user,
+      id: user.user_id,
+      username: user.username,
+      createdAt: user.createdAt,
+    }));
+  }
 
-    return result.rows;
+  async getOverview(userID: string): Promise<Overview> {
+    if (!userID) {
+      throw new GraphQLError('User not found', {
+        extensions: { code: 'NOT_FOUND', http: { status: 404 } },
+      });
+    }
+
+    const projectsResult = await pool.query(
+      'SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = $1',
+      [userID]
+    );
+    const projects = projectsResult.rows;
+
+    const tasksResult = await pool.query(
+      'SELECT * FROM tasks WHERE assignee_id = $1',
+      [userID]
+    );
+    const tasks = tasksResult.rows;
+    console.log('tasks', tasks);
+
+    return {
+      id: userID,
+      projectCount: projects.length,
+      tasksCompleted: 0,
+      tasksAssigned: tasks.length,
+      collaborators: 0,
+      projects: projects,
+      tasks: tasks,
+    };
   }
 
   async register(

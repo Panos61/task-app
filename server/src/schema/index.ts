@@ -41,8 +41,8 @@ export const typeDefs = gql`
     priority: String
     projectID: ID
     assigneeID: ID
-    created_at: String
-    updated_at: String
+    createdAt: String
+    updatedAt: String
   }
 
   input AuthInput {
@@ -61,8 +61,8 @@ export const typeDefs = gql`
     description: String
     status: String
     priority: String
-    projectID: String
-    assigneeID: String
+    projectID: ID
+    assigneeID: ID
   }
 
   type Query {
@@ -73,7 +73,6 @@ export const typeDefs = gql`
     projects(ownerID: ID!): [Project]!
     task(id: ID!): Task!
     tasks(projectID: ID!): [Task]!
-    getAssignedTasks(assigneeID: ID!): [Task]!
   }
 
   type Mutation {

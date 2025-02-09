@@ -14,12 +14,6 @@ export const taskResolvers = {
     tasks: async (_: any, { projectID }: { projectID: string }) => {
       return await taskService.getTasks(projectID);
     },
-    getAssignedTasks: async (
-      _: any,
-      { assigneeID }: { assigneeID: string }
-    ) => {
-      return await taskService.getAssignedTasks(assigneeID);
-    },
   },
   Mutation: {
     createTask: async (_: any, { input }: { input: Task }) => {
