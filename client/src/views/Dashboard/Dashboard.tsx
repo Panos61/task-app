@@ -23,14 +23,11 @@ export const Dashboard = () => {
 
   const { data } = useQuery(GET_ME);
   const meData = data?.me;
-  console.log('meData', meData);
 
   const { data: projectsData, loading: projectsLoading } = useQuery(GET_PROJECTS, {
     variables: { ownerID: meData?.id },
   });
-
   const projects = projectsData?.projects;
-  console.log('projects', projects);
 
   const renderProjectList = () => {
     if (projectsLoading)

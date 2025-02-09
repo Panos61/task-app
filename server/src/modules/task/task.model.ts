@@ -1,7 +1,13 @@
-enum TaskStatus {
+const enum Status {
   BACKLOG = 'BACKLOG',
   IN_PROGRESS = 'IN_PROGRESS',
   DONE = 'DONE',
+}
+
+const enum Priority {
+  Low = 'low',
+  Medium = 'medium',
+  High = 'high',
 }
 
 export interface Task {
@@ -10,7 +16,8 @@ export interface Task {
   assigneeID: string;
   title: string;
   description: string;
-  status: TaskStatus;
+  status: Status;
+  priority: Priority;
   createdAt: Date;
   updatedAt: Date;
 }

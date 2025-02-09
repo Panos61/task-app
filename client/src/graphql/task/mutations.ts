@@ -7,6 +7,7 @@ export const CREATE_TASK = gql`
       title
       description
       status
+      priority
       projectID
       assigneeID
       created_at
@@ -22,6 +23,7 @@ export const UPDATE_TASK = gql`
       title
       description
       status
+      priority
       projectID
       assigneeID
       created_at
