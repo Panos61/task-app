@@ -6,6 +6,16 @@ export const typeDefs = gql`
     username: String!
     created_at: String!
   }
+  
+  type UserOverview {
+    id: ID!
+    projectCount: Int!
+    tasksCompleted: Int!
+    tasksAssigned: Int!
+    collaborators: Int!
+    projects: [Project!]!
+    tasks: [Task]!
+  }
 
   type AuthPayload {
     token: String!
@@ -58,6 +68,7 @@ export const typeDefs = gql`
   type Query {
     me: User!
     users(projectID: ID!): [User!]!
+    overview: UserOverview!
     project(projectID: ID!): Project!
     projects(ownerID: ID!): [Project]!
     task(id: ID!): Task!
