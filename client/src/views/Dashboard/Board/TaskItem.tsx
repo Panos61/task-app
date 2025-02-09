@@ -12,8 +12,8 @@ import type { Task } from '@graphql/task/types';
 import { UPDATE_TASK } from '@graphql/task/mutations';
 
 import { useDebounce } from '../useDebounce';
-import Celebration from './Celebration';
-import TaskDrawer from './TaskDrawer';
+import Celebration from '../components/Celebration';
+import TaskDrawer from '../components/TaskDrawer';
 
 interface Props {
   id: string;
@@ -44,6 +44,7 @@ const TaskItem = ({ id, task }: Props) => {
   }, 500);
 
   const handleTitleChange = (value: string) => {
+    console.log('value', value);
     setFieldValue('title', value);
     debouncedUpdate({ title: value });
   };
@@ -65,6 +66,19 @@ const TaskItem = ({ id, task }: Props) => {
     }
   );
 
+  const setPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'low':
+        return 'blue';
+      case 'medium':
+        return 'yellow';
+      case 'high':
+        return 'orange';
+      default:
+        return '';
+    }
+  };
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -73,11 +87,11 @@ const TaskItem = ({ id, task }: Props) => {
   return (
     <>
       <Drawer
+        size='lg'
         position='right'
+        withCloseButton={false}
         opened={opened}
         onClose={close}
-        withCloseButton={false}
-        size='lg'
       >
         <TaskDrawer task={task} />
       </Drawer>
@@ -123,21 +137,15 @@ const TaskItem = ({ id, task }: Props) => {
             </div>
             {task.priority && (
               <Badge
-                className='mb-8'
-                color={
-                  task.priority === 'low'
-                    ? 'blue'
-                    : task.priority === 'medium'
-                    ? 'yellow'
-                    : 'violet'
-                }
                 variant='light'
                 radius='sm'
+                color={setPriorityColor(task.priority)}
+                className='mb-8'
               >
                 {task.priority?.toUpperCase()}
               </Badge>
             )}
-            <Avatar color='cyan' radius='xl' size={24}>
+            <Avatar size={24} color='cyan' radius='xl'>
               MK
             </Avatar>
           </div>

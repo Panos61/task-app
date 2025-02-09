@@ -6,7 +6,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Formik, FormikProvider, useFormikContext } from 'formik';
+import { Formik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
 import { useOnClickOutside } from 'usehooks-ts';
 import { PlusIcon } from 'lucide-react';
@@ -15,16 +15,17 @@ import type { Task } from '@graphql/task/types';
 import { GET_TASKS } from '@graphql/task/queries';
 import { CREATE_TASK, DELETE_TASK } from '@graphql/task/mutations';
 
-import { TaskItem } from '../components';
 import { BoardSections } from './utils';
 import DroppableContainer from './DroppableContainer';
 import SortableTaskItem from './SortableTaskItem';
+import TaskItem from './TaskItem';
 
 interface Props {
   id: string;
   title: string;
   tasks: Task[];
   setBoardSections: React.Dispatch<React.SetStateAction<BoardSections>>;
+  sectionTaskCount: { backlog: number; inprogress: number; done: number };
 }
 
 const taskValidationSchema = Yup.object({
@@ -33,11 +34,15 @@ const taskValidationSchema = Yup.object({
   assignee: Yup.string(),
 });
 
-
-const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
+const BoardSection = ({
+  id,
+  title,
+  tasks,
+  setBoardSections,
+  sectionTaskCount,
+}: Props) => {
   const [currentTaskID, setCurrentTaskID] = useState<string | null>(null);
   const taskRef = useRef(null);
-  // console.log('tasks', tasks);
 
   const { pathname } = useLocation();
   const projectID = pathname.split('/')[3];
@@ -45,7 +50,6 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
   const { setNodeRef } = useDroppable({
     id,
   });
-  const { values } = useFormikContext<Task>();
 
   const [createTask] = useMutation(CREATE_TASK, {
     update(cache, { data: { createTask } }) {
@@ -100,14 +104,13 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
     createTask({
       variables: {
         input: {
-          title: values.title || '',
+          title: '',
           status: taskStatus,
           projectID: projectID,
           assigneeID: '',
         },
       },
       onCompleted: (data) => {
-        console.log('Task created:', data);
         setCurrentTaskID(data.createTask.id);
       },
       onError: (error) => {
@@ -136,15 +139,29 @@ const BoardSection = ({ id, title, tasks, setBoardSections }: Props) => {
   };
 
   useOnClickOutside(taskRef, () => {
-    if (values.title === '' || values.title === undefined) {
-      handleTaskRemoval();
+    if (currentTaskID) {
+      const task = tasks.find((task) => task.id === currentTaskID);
+      if (task && task.title === '') {
+        handleTaskRemoval();
+      }
     }
   });
+
+  const renderTitle = (title: string) => {
+    let formattedTitle: string;
+    formattedTitle = title.charAt(0).toUpperCase() + title.slice(1);
+
+    if (title === 'inprogress') formattedTitle = 'In Progress';
+    return formattedTitle;
+  };
 
   return (
     <>
       <div className='flex items-center gap-4 mb-8 ml-12'>
-        <span className='text-lg font-bold'>{title}</span>
+        <span className='text-lg font-bold'>{renderTitle(title)}</span>
+        <span className='self-end text-sm text-gray-400'>
+          {sectionTaskCount[id as keyof typeof sectionTaskCount]}
+        </span>
         <div
           className='p-4 rounded-8 duration-150 hover:bg-gray-700/35 cursor-pointer'
           onClick={handleCreateTask}
