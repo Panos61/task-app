@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useMutation, useQuery, useSubscription } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useLocation } from 'react-router';
 import { useFormikContext } from 'formik';
+import classNames from 'classnames';
 import { Divider, Textarea, Skeleton, Select } from '@mantine/core';
 import { Check, Trash } from 'lucide-react';
 
@@ -9,14 +10,10 @@ import type { User } from '@graphql/user/types';
 import type { Task } from '@graphql/task/types';
 import { GET_USERS } from '@graphql/user/queries';
 import { UPDATE_TASK, DELETE_TASK } from '@graphql/task/mutations';
-import {
-  TASK_CREATED_SUBSCRIPTION,
-  TASK_UPDATED_SUBSCRIPTION,
-} from '@graphql/task/subscriptions';
 import { useDebounce } from '../useDebounce';
 
 interface Props {
-  task?: Task;
+  task: Task;
 }
 
 const priorityOptions = [
@@ -34,7 +31,6 @@ const TaskDrawer = ({ task }: Props) => {
   >([]);
 
   const { values, setFieldValue } = useFormikContext<Task>();
-  console.log('task', task);
 
   const { data, loading } = useQuery(GET_USERS, {
     variables: {
@@ -45,35 +41,12 @@ const TaskDrawer = ({ task }: Props) => {
 
   useEffect(() => {
     if (users) {
+      console.log(users);
       setSelectData(
         users.map((user: User) => ({ value: user.id, label: user.username }))
       );
     }
   }, [users]);
-
-  useSubscription(TASK_CREATED_SUBSCRIPTION, {
-    variables: {
-      projectID,
-      title: '',
-      description: '',
-      status: status,
-    },
-    onData: ({ data }) => {
-      console.log('Task created subscription data:', data);
-    },
-  });
-
-  useSubscription(TASK_UPDATED_SUBSCRIPTION, {
-    variables: {
-      projectID,
-      title: '',
-      description: '',
-      status: status,
-    },
-    onData: ({ data }) => {
-      console.log('Task updated subscription data:', data);
-    },
-  });
 
   const [updateTask] = useMutation(UPDATE_TASK, {
     update(cache, { data: { updatedTask } }) {
@@ -122,9 +95,13 @@ const TaskDrawer = ({ task }: Props) => {
 
   const handleDeleteTask = () => {
     if (task) {
-      console.log('Deleting task', task.id);
       deleteTask({ variables: { taskID: parseInt(task.id) } });
     }
+  };
+
+  const handleCompleteTask = () => {
+    setFieldValue('status', 'done');
+    debouncedUpdate({ status: 'done' });
   };
 
   const handleTitleChange = (
@@ -139,8 +116,6 @@ const TaskDrawer = ({ task }: Props) => {
           input: {
             id: parseInt(task?.id || ''),
             title: value,
-            status: task?.status,
-            projectID,
           },
         },
         update(cache, { data: { updateTask } }) {
@@ -157,13 +132,49 @@ const TaskDrawer = ({ task }: Props) => {
     return () => clearTimeout(timeoutId);
   };
 
+  const handleAssigneeChange = (value: string | null) => {
+    const parsedValue = value ? parseInt(value) : null;
+
+    setFieldValue('assigneeID', parsedValue);
+    debouncedUpdate({ assigneeID: parsedValue });
+  };
+
+  const renderAssignee = () => {
+    if (task?.assigneeID) {
+      console.log(
+        selectData.find((user) => user.value === task?.assigneeID)?.label
+      );
+      return selectData.find((user) => user.value === task?.assigneeID)?.value;
+    }
+    return null;
+  };
+
+  const formatDate = (timestamp: string) => {
+    const date = new Date(Number(timestamp));
+    return date.toLocaleDateString('en-us', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const completeCls = classNames(
+    'flex items-center gap-4 w-auto p-4 mb-8 text-xs font-semibold border border-gray-400/20 rounded-4 duration-300 cursor-pointer hover:bg-green-600/15 hover:border-green-600 hover:text-green-600',
+    {
+      'bg-green-600/15 border-green-600 text-green-600':
+        task?.status === 'done',
+    }
+  );
+
   return (
-    <div className='flex flex-col w-full'>
+    <div className='flex flex-col justify-between w-full'>
       <div>
         <div className='flex gap-8'>
-          <div className='flex items-center gap-4 w-[120px] p-4 mb-8 text-xs font-semibold border border-gray-400/20 rounded-4 duration-300 cursor-pointer hover:bg-green-600/15 hover:border-green-600 hover:text-green-600'>
+          <div className={completeCls} onClick={handleCompleteTask}>
             <Check size={16} />
-            Mark complete
+            {task?.status === 'done' ? 'Completed' : 'Mark complete'}
           </div>
           <div
             className='flex items-center gap-4 p-4 mb-8 text-xs text-red-500 font-semibold border border-red-500 rounded-4 duration-300 cursor-pointer hover:bg-red-600/15 hover:border-red-600 hover:text-red-600'
@@ -196,32 +207,21 @@ const TaskDrawer = ({ task }: Props) => {
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
           />
-          {/* {errors.title && touched.title && (
-            <span className='text-xs text-red-500'>{errors.title}</span>
-          )} */}
           <div className='flex items-center gap-72 text-sm'>
             <span className='w-24'>Assignee</span>
             {loading ? (
               <Skeleton height={30} width={300} />
             ) : (
               <Select
+                placeholder='Select Assignee'
+                defaultValue={renderAssignee()}
                 data={selectData}
-                value={task?.assigneeID || values.assigneeID}
-                onChange={(value) => {
-                  setFieldValue('assigneeID', value);
-                  updateTask({
-                    variables: {
-                      input: {
-                        id: parseInt(task?.id || ''),
-                        assigneeID: values.assigneeID,
-                      },
-                    },
-                  });
-                }}
                 comboboxProps={{
                   transitionProps: { transition: 'pop', duration: 200 },
                 }}
-                placeholder='Select Assignee'
+                onChange={(value) => {
+                  handleAssigneeChange(value);
+                }}
                 className='w-[300px]'
               />
             )}
@@ -231,6 +231,7 @@ const TaskDrawer = ({ task }: Props) => {
             <Select
               placeholder='Select Priority'
               data={priorityOptions}
+              value={task?.priority || values.priority}
               className='w-[300px]'
               onChange={(value) => {
                 setFieldValue('priority', value);
@@ -252,6 +253,14 @@ const TaskDrawer = ({ task }: Props) => {
             />
           </div>
         </div>
+      </div>
+      <div className='flex flex-col gap-4 mt-32'>
+        <span className='text-xs text-gray-400'>
+          Created at {formatDate(task?.createdAt)}.
+        </span>
+        {/* <span className='text-xs text-gray-400'>
+          Updated at {formatDate(task?.updatedAt)}.
+        </span> */}
       </div>
     </div>
   );
