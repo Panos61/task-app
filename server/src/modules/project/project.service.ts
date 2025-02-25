@@ -14,10 +14,14 @@ export class ProjectService {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
       });
     }
+    
+    const collaboratorsResult = await pool.query('SELECT COUNT(user_id) FROM project_users WHERE project_id = $1', [projectID]);
+    const collaborators: number = collaboratorsResult.rows[0].count;
 
     return {
       ...result.rows[0],
       taskCount: result.rows[0].task_count,
+      collaborators: collaborators,
     };
   }
 
@@ -36,10 +40,21 @@ export class ProjectService {
       'SELECT * FROM projects WHERE id = ANY($1::uuid[])',
       [projectIDs]
     );
-
-    return projects.rows.map((project) => ({
+    
+    const collaboratorsResult = await pool.query(
+      'SELECT project_id, COUNT(user_id) as count FROM project_users WHERE project_id = ANY($1::uuid[]) GROUP BY project_id',
+      [projectIDs]
+    );
+    
+    // Create a map of project_id to collaborator count for easier lookup
+    const collaboratorMap = new Map(
+      collaboratorsResult.rows.map(row => [row.project_id, parseInt(row.count)])
+    );
+    
+    return projects.rows.map(project => ({
       ...project,
       taskCount: project.task_count,
+      collaborators: collaboratorMap.get(project.id) ?? 0,
     }));
   }
 

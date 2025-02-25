@@ -19,3 +19,27 @@ export const GET_USERS = gql`
   }
 `
 
+export const GET_OVERVIEW = gql`
+  query Overview {
+    overview {
+      id
+      projectCount
+      tasksCompleted
+      tasksAssigned
+      collaborators
+      projects {
+        id
+        name
+        color
+      }
+      tasks { 
+        id
+        title
+        description
+        status
+        priority
+        assigneeID
+      }
+    }
+  }
+`
