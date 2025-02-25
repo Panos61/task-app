@@ -258,9 +258,9 @@ const TaskDrawer = ({ task }: Props) => {
         <span className='text-xs text-gray-400'>
           Created at {formatDate(task?.createdAt)}.
         </span>
-        {/* <span className='text-xs text-gray-400'>
+        <span className='text-xs text-gray-400'>
           Updated at {formatDate(task?.updatedAt)}.
-        </span> */}
+        </span>
       </div>
     </div>
   );

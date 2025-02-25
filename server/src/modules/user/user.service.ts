@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
 import type { User, Overview } from './user.model.js';
+import type { Task } from '@/modules/task/task.model.js';
 import pool from '@/utils/database.js';
 
 export class UserService {
@@ -25,7 +26,7 @@ export class UserService {
       'SELECT * FROM users INNER JOIN project_users ON users.id = project_users.user_id WHERE project_users.project_id = $1',
       [projectID]
     );
-    
+
     const users = result.rows;
     return users.map((user) => ({
       ...user,
@@ -43,7 +44,7 @@ export class UserService {
     }
 
     const projectsResult = await pool.query(
-      'SELECT * FROM projects INNER JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = $1',
+      'SELECT projects.* FROM projects LEFT JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = $1',
       [userID]
     );
     const projects = projectsResult.rows;
@@ -52,13 +53,22 @@ export class UserService {
       'SELECT * FROM tasks WHERE assignee_id = $1',
       [userID]
     );
-    const tasks = tasksResult.rows;
-    console.log('tasks', tasks);
+    const tasks: Task[] = tasksResult.rows;
+    const taskCompleted: number = tasks.filter(
+      (task: Task) => task.status === 'DONE'
+    ).length;
+
+    // const collaboratorsResult = await pool.query(
+    //   'SELECT COUNT(user_id) FROM project_users WHERE EXISTS',
+    //   [userID]
+    // );
+    // const collaborators: number = collaboratorsResult.rows[0];
+    // console.log('collaborators', collaborators);
 
     return {
       id: userID,
       projectCount: projects.length,
-      tasksCompleted: 0,
+      tasksCompleted: taskCompleted,
       tasksAssigned: tasks.length,
       collaborators: 0,
       projects: projects,
