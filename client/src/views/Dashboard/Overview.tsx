@@ -21,7 +21,6 @@ export const Overview = () => {
   const { data: overviewData, loading: overviewLoading } =
     useQuery(GET_OVERVIEW);
   const overview: UserOverview = overviewData?.overview;
-  console.log('overview', overview);
 
   const { data: projectsData } = useQuery(GET_PROJECTS, {
     variables: { ownerID: meData?.id },
@@ -41,7 +40,8 @@ export const Overview = () => {
     joinProject({ variables: { invitation } });
   };
 
-  const cardCls = 'flex flex-col gap-12 w-[500px] h-[400px] p-20 border border-gray-400/20 rounded-12';
+  const cardCls =
+    'flex flex-col gap-12 w-full h-[400px] p-20 border border-gray-400/20 rounded-12';
 
   return (
     <div className='flex flex-col items-center gap-32 h-full mx-24'>
@@ -73,7 +73,7 @@ export const Overview = () => {
           </div>
         </div>
       </div>
-      <div className='flex items-center gap-12'>
+      <div className='flex flex-col items-center gap-12 xlg:flex-row'>
         {overviewLoading ? (
           <Skeleton w={500} h={400} animate={false} />
         ) : (
@@ -85,30 +85,31 @@ export const Overview = () => {
               </span>
             </div>
             <ScrollArea h={320}>
-              <div className='flex flex-col items-center gap-8'>
+              <div className='w-[500px] flex flex-col items-center gap-8'>
                 {overview.projectCount === 0 && (
                   <span className='text-sm'>No tasks yet.</span>
                 )}
-                {overview?.tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className='flex flex-col justify-start gap-12 w-full'
-                    onClick={() => navigate(`/dashboard/board/${task.id}`)}
-                  >
-                    <div className='flex justify-between w-full'>
-                      <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
-                        <div className='ml-4'>{task.title}</div>
-                        <Divider orientation='vertical' />
-                        <div className='flex gap-4 text-sm'>
-                          <span>status: </span>
-                          <span className='font-bold text-green-500'>
-                            {task.status}
-                          </span>
+                {overview &&
+                  overview.tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className='flex flex-col justify-start gap-12 w-full'
+                      onClick={() => navigate(`/dashboard/board/${task.id}`)}
+                    >
+                      <div className='flex justify-between w-full'>
+                        <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
+                          <div className='ml-4'>{task.title}</div>
+                          <Divider orientation='vertical' />
+                          <div className='flex gap-4 text-sm'>
+                            <span>status: </span>
+                            <span className='font-bold text-green-500'>
+                              {task.status}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </ScrollArea>
           </div>
@@ -124,34 +125,37 @@ export const Overview = () => {
               </span>
             </div>
             <ScrollArea h={320}>
-              <div className='flex flex-col items-center gap-8'>
+              <div className='w-[500px] flex flex-col items-center gap-8'>
                 {overview.projectCount === 0 && (
                   <span className='text-sm'>No projects yet.</span>
                 )}
-                {overview?.projects.map((project) => {
-                  return (
-                    <div
-                      key={project.id}
-                      className='flex flex-col justify-start gap-12 w-full'
-                      onClick={() => navigate(`/dashboard/board/${project.id}`)}
-                    >
-                      <div className='flex justify-between w-full'>
-                        <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
-                          <div
-                            className='ml-4 size-16 self-center rounded-4'
-                            style={{ backgroundColor: project.color }}
-                          />
-                          <div>{project.name}</div>
-                          <Divider orientation='vertical' />
-                          <div className='flex gap-4 text-sm'>
-                            <span>Tasks</span>
-                            {project.taskCount}
+                {overview &&
+                  overview.projects.map((project) => {
+                    return (
+                      <div
+                        key={project.id}
+                        className='flex flex-col justify-start gap-12 w-full'
+                        onClick={() =>
+                          navigate(`/dashboard/board/${project.id}`)
+                        }
+                      >
+                        <div className='flex justify-between w-full'>
+                          <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
+                            <div
+                              className='ml-4 size-16 self-center rounded-4'
+                              style={{ backgroundColor: project.color }}
+                            />
+                            <div>{project.name}</div>
+                            <Divider orientation='vertical' />
+                            <div className='flex gap-4 text-sm'>
+                              <span>Tasks</span>
+                              {project.taskCount}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             </ScrollArea>
           </div>
