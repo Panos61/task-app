@@ -10,9 +10,8 @@ const UserAccount = ({ userData }: { userData: User }) => {
   const [logout, { loading }] = useMutation(LOGOUT);
 
   const handleLogout = () => {
-    logout()
+    logout({ context: { credentials: 'include' }})
       .then(() => {
-        localStorage.removeItem('token');
         navigate('/');
       })
       .finally(() => {

@@ -1,13 +1,14 @@
+import express, { Response } from 'express';
+import http from 'http';
 import {
   expressMiddleware,
   ExpressMiddlewareOptions,
 } from '@apollo/server/express4';
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { GraphQLError } from 'graphql';
-import express from 'express';
-import http from 'http';
-import cors from 'cors';
 import { makeExecutableSchema } from '@graphql-tools/schema';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import { typeDefs } from '@/schema/index.js';
 import { resolvers } from '@/schema/resolvers.js';
@@ -17,6 +18,7 @@ export interface Context extends ExpressMiddlewareOptions<BaseContext> {
   user: {
     id: string;
   } | null;
+  res: Response;
 }
 
 const schema = makeExecutableSchema({
@@ -27,6 +29,7 @@ const schema = makeExecutableSchema({
 export const createApolloServer = async () => {
   const server = new ApolloServer<Context>({
     schema,
+    csrfPrevention: true,
   });
 
   await server.start();
@@ -34,34 +37,41 @@ export const createApolloServer = async () => {
 };
 
 const app = express();
+app.use(cookieParser());
+
 const httpServer = http.createServer(app);
 const PORT = 4000;
 
 const bootstrap = async () => {
   const server = new ApolloServer<Context>({
     schema,
+    csrfPrevention: true,
   });
 
   await server.start();
 
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>(),
+    cors<cors.CorsRequest>({
+      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      credentials: true
+    }),
     express.json(),
+    // @ts-ignore - Temporary fix for express middleware type mismatch
     expressMiddleware(server, {
-      context: async ({ req }) => {
-        const token = req.headers['token'] as string | undefined;
-        if (!token) return { user: null };
+      context: async ({ req, res }) => {
+        const token = req.cookies.token;
+        if (!token) return { user: null, res };
+
         try {
           const userID = getUserIDFromToken(token);
-          return { user: { id: userID } };
+          return { user: { id: userID }, res };
         } catch {
-          throw new GraphQLError('Invalid token', {
-            extensions: { code: 'UNAUTHENTICATED', http: { status: 401 } },
-          });
+          res.clearCookie('token');
+          throw new GraphQLError('Invalid token');
         }
       },
-    }) as any
+    })
   );
 
   await new Promise<void>((resolve) =>

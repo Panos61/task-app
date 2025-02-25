@@ -1,9 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
+import type { Response } from 'express';
 
 import type { User, Overview } from './user.model.js';
 import type { Task } from '@/modules/task/task.model.js';
+import { cookieConfig } from '@/utils/cookie.js';
 import pool from '@/utils/database.js';
 
 export class UserService {
@@ -108,7 +110,8 @@ export class UserService {
 
   async login(
     username: string,
-    password: string
+    password: string,
+    res: Response
   ): Promise<{ user: User; token: string }> {
     const result = await pool.query('SELECT * FROM users WHERE username=$1', [
       username,
@@ -128,6 +131,8 @@ export class UserService {
       expiresIn: '1d',
     });
 
+    res.cookie('token', token, cookieConfig);
+
     return { user, token };
   }
 
@@ -139,7 +144,8 @@ export class UserService {
     return result.rows[0];
   }
 
-  async logout(): Promise<boolean> {
+  async logout(res: Response): Promise<boolean> {
+    res.clearCookie('token');
     return true;
   }
 }
