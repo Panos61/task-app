@@ -19,7 +19,7 @@ import { ProjectList, UserAccount } from './components';
 export const Dashboard = () => {
   const navigate = useNavigate();
   const [mobileOpened, { toggle: toggleMobile }] = useDisclosure();
-  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(false);
+  const [desktopOpened, { toggle: toggleDesktop }] = useDisclosure(true);
 
   const { data } = useQuery(GET_ME);
   const meData = data?.me;

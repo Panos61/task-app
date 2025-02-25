@@ -1,7 +1,7 @@
 import { gql } from 'graphql-tag';
 
 export const GET_TASK = gql`
-  query task($id: ID!) {
+  query Task($id: ID!) {
     task(id: $id) {
       id
       title
@@ -10,12 +10,14 @@ export const GET_TASK = gql`
       priority
       assigneeID
       projectID
+      createdAt
+      updatedAt
     }
   }
 `;
 
 export const GET_TASKS = gql`
-  query GetTasks($projectID: ID!) {
+  query Tasks($projectID: ID!) {
     tasks(projectID: $projectID) {
       id
       title
@@ -24,20 +26,8 @@ export const GET_TASKS = gql`
       priority
       assigneeID
       projectID
-    }
-  }
-`;
-
-export const GET_ASSIGNED_TASKS = gql`
-  query getAssignedTasks($projectID: ID!) {
-    assignedTasks(projectID: $projectID) {
-      id
-      title
-      description
-      status
-      priority
-      assigneeID
-      projectID
+      createdAt
+      updatedAt
     }
   }
 `;

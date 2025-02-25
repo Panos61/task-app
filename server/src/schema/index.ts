@@ -29,6 +29,7 @@ export const typeDefs = gql`
     invitation: String!
     owner_id: ID!
     taskCount: Int!
+    collaborators: Int!
     created_at: String!
     updated_at: String!
   }

@@ -24,6 +24,7 @@ export const JOIN_PROJECT = gql`
       name
       color
       invitation
+      collaborators
     }
   }
 `;

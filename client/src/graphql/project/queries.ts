@@ -8,6 +8,7 @@ export const GET_PROJECT = gql`
       color
       invitation
       taskCount
+      collaborators
     }
   }
 `;
@@ -20,6 +21,7 @@ export const GET_PROJECTS = gql`
       color
       invitation
       taskCount
+      collaborators
     }
   }
 `
