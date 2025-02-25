@@ -29,20 +29,6 @@ export class TaskService {
     return result.rows;
   }
 
-  async getAssignedTasks(assigneeID: string): Promise<Task[]> {
-    const result = await pool.query(
-      'SELECT * FROM tasks WHERE assignee_id = $1',
-      [assigneeID]
-    );
-    if (!result.rows) {
-      throw new GraphQLError('Failed to get assigned tasks', {
-        extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
-      });
-    }
-
-    return result.rows;
-  }
-
   async createTask(task: Task): Promise<Task> {
     await pool.query('BEGIN');
 
@@ -94,8 +80,9 @@ export class TaskService {
   }
 
   async updateTask(task: Task): Promise<Task> {
+    const assigneeID = task.assigneeID ? parseInt(task.assigneeID) : null;
     const timestamp: string = new Date().toISOString();
-
+    
     const result = await pool.query(
       `UPDATE tasks 
         SET title = COALESCE($1, title),
@@ -112,7 +99,7 @@ export class TaskService {
         task.description,
         task.status,
         task.priority,
-        task.assigneeID,
+        assigneeID,
         task.projectID,
         timestamp,
         task.id,

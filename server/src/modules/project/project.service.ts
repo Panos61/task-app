@@ -14,10 +14,14 @@ export class ProjectService {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
       });
     }
+    
+    const collaboratorsResult = await pool.query('SELECT COUNT(user_id) FROM project_users WHERE project_id = $1', [projectID]);
+    const collaborators: number = collaboratorsResult.rows[0].count;
 
     return {
       ...result.rows[0],
       taskCount: result.rows[0].task_count,
+      collaborators: collaborators,
     };
   }
 
@@ -37,9 +41,20 @@ export class ProjectService {
       [projectIDs]
     );
     
+    const collaboratorsResult = await pool.query(
+      'SELECT project_id, COUNT(user_id) as count FROM project_users WHERE project_id = ANY($1::uuid[]) GROUP BY project_id',
+      [projectIDs]
+    );
+    
+    // Create a map of project_id to collaborator count for easier lookup
+    const collaboratorMap = new Map(
+      collaboratorsResult.rows.map(row => [row.project_id, parseInt(row.count)])
+    );
+    
     return projects.rows.map(project => ({
       ...project,
-      taskCount: project.task_count
+      taskCount: project.task_count,
+      collaborators: collaboratorMap.get(project.id) ?? 0,
     }));
   }
 
@@ -108,7 +123,6 @@ export class ProjectService {
   }
 
   async deleteProject(projectID: string, userID: string): Promise<boolean> {
-    console.log(projectID, userID);
     const ownerResult = await pool.query<{ owner_id: string }>(
       'SELECT owner_id FROM projects WHERE id=$1',
       [projectID]
@@ -121,14 +135,25 @@ export class ProjectService {
     }
 
     const ownerID = ownerResult.rows[0].owner_id;
-    console.log(ownerID, userID);
     if (ownerID !== userID) {
       throw new GraphQLError('You are not the owner of this project', {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
       });
-    }
+    } 
 
-    await pool.query('DELETE FROM projects WHERE id=$1', [projectID]);
-    return true;
+    try {
+      await pool.query('BEGIN');
+
+      await pool.query('DELETE FROM projects WHERE id=$1', [projectID]);
+      await pool.query('DELETE FROM project_users WHERE project_id=$1', [
+        projectID,
+      ]);
+      
+      await pool.query('COMMIT');
+      return true;
+    } catch {
+      await pool.query('ROLLBACK');
+      return false;
+    }
   }
 }

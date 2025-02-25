@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
-import type { User } from './user.model.js';
+import type { User, Overview } from './user.model.js';
+import type { Task } from '@/modules/task/task.model.js';
 import pool from '@/utils/database.js';
 
 export class UserService {
@@ -9,7 +10,7 @@ export class UserService {
     const result = await pool.query('SELECT * FROM users WHERE id = $1', [
       userID,
     ]);
-    
+
     const user = result.rows[0];
     if (!user) {
       throw new GraphQLError('User not found', {
@@ -26,7 +27,56 @@ export class UserService {
       [projectID]
     );
 
-    return result.rows;
+    const users = result.rows;
+    return users.map((user) => ({
+      ...user,
+      id: user.user_id,
+      username: user.username,
+      createdAt: user.createdAt,
+    }));
+  }
+
+  async getOverview(userID: string): Promise<Overview> {
+    if (!userID) {
+      throw new GraphQLError('User not found', {
+        extensions: { code: 'NOT_FOUND', http: { status: 404 } },
+      });
+    }
+
+    const projectsResult = await pool.query(
+      'SELECT projects.* FROM projects LEFT JOIN project_users ON projects.id = project_users.project_id WHERE project_users.user_id = $1',
+      [userID]
+    );
+    const projects = projectsResult.rows;
+
+    const tasksResult = await pool.query(
+      'SELECT * FROM tasks WHERE assignee_id = $1',
+      [userID]
+    );
+    const tasks: Task[] = tasksResult.rows;
+
+    const taskCompleted: number = tasks.filter(
+      (task: Task) => task.status === 'DONE'
+    ).length;
+
+    const collaboratorsResult = await pool.query(
+      `SELECT COUNT(DISTINCT pu2.user_id) as count
+       FROM project_users pu1
+       JOIN project_users pu2 ON pu1.project_id = pu2.project_id AND pu2.user_id != $1
+       WHERE pu1.user_id = $1`,
+      [userID]
+    );
+    const collaborators: number = collaboratorsResult.rows[0].count;
+
+    return {
+      id: userID,
+      projectCount: projects.length,
+      tasksCompleted: taskCompleted,
+      tasksAssigned: tasks.length,
+      collaborators: collaborators,
+      projects: projects,
+      tasks: tasks,
+    };
   }
 
   async register(

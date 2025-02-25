@@ -230,6 +230,11 @@ const BoardSectionList = () => {
             </>
           )}
         </div>
+        <Divider orientation='vertical' />
+        <div className='flex gap-4 text-sm text-gray-400/95'>
+          <span>Collaborators:</span>
+          <span className='font-bold text-text-primary'>{project?.collaborators}</span>
+        </div>
       </div>
       <Divider className='mb-12' />
       <div className='grid grid-cols-3 gap-4 ml-68'>

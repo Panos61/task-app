@@ -6,6 +6,16 @@ export const typeDefs = gql`
     username: String!
     created_at: String!
   }
+  
+  type UserOverview {
+    id: ID!
+    projectCount: Int!
+    tasksCompleted: Int!
+    tasksAssigned: Int!
+    collaborators: Int!
+    projects: [Project!]!
+    tasks: [Task]!
+  }
 
   type AuthPayload {
     token: String!
@@ -19,6 +29,7 @@ export const typeDefs = gql`
     invitation: String!
     owner_id: ID!
     taskCount: Int!
+    collaborators: Int!
     created_at: String!
     updated_at: String!
   }
@@ -31,8 +42,8 @@ export const typeDefs = gql`
     priority: String
     projectID: ID
     assigneeID: ID
-    created_at: String
-    updated_at: String
+    createdAt: String
+    updatedAt: String
   }
 
   input AuthInput {
@@ -51,18 +62,18 @@ export const typeDefs = gql`
     description: String
     status: String
     priority: String
-    projectID: String
-    assigneeID: String
+    projectID: ID
+    assigneeID: ID
   }
 
   type Query {
     me: User!
     users(projectID: ID!): [User!]!
+    overview: UserOverview!
     project(projectID: ID!): Project!
     projects(ownerID: ID!): [Project]!
     task(id: ID!): Task!
     tasks(projectID: ID!): [Task]!
-    getAssignedTasks(assigneeID: ID!): [Task]!
   }
 
   type Mutation {

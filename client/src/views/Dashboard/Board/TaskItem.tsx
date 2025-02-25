@@ -13,7 +13,7 @@ import { UPDATE_TASK } from '@graphql/task/mutations';
 
 import { useDebounce } from '../useDebounce';
 import Celebration from '../components/Celebration';
-import TaskDrawer from '../components/TaskDrawer';
+import TaskDrawer from './TaskDrawer';
 
 interface Props {
   id: string;
@@ -44,7 +44,6 @@ const TaskItem = ({ id, task }: Props) => {
   }, 500);
 
   const handleTitleChange = (value: string) => {
-    console.log('value', value);
     setFieldValue('title', value);
     debouncedUpdate({ title: value });
   };

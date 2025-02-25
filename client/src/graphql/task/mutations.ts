@@ -10,8 +10,8 @@ export const CREATE_TASK = gql`
       priority
       projectID
       assigneeID
-      created_at
-      updated_at
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -26,8 +26,8 @@ export const UPDATE_TASK = gql`
       priority
       projectID
       assigneeID
-      created_at
-      updated_at
+      createdAt
+      updatedAt
     }
   }
 `;

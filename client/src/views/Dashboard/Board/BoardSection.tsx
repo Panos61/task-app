@@ -31,7 +31,7 @@ interface Props {
 const taskValidationSchema = Yup.object({
   title: Yup.string().required('Title is required'),
   description: Yup.string(),
-  assignee: Yup.string(),
+  // assignee: Yup.string(),
 });
 
 const BoardSection = ({
@@ -107,7 +107,7 @@ const BoardSection = ({
           title: '',
           status: taskStatus,
           projectID: projectID,
-          assigneeID: '',
+          assigneeID: null,
         },
       },
       onCompleted: (data) => {
