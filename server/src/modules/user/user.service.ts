@@ -84,7 +84,8 @@ export class UserService {
 
   async register(
     username: string,
-    password: string
+    password: string,
+    res: Response
   ): Promise<{ user: User; token: string }> {
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -104,7 +105,8 @@ export class UserService {
     const token = jwt.sign({ userID: user.id }, process.env.JWT_SECRET!, {
       expiresIn: '1d',
     });
-
+    
+    res.cookie('token', token, cookieConfig);
     return { user, token };
   }
 
@@ -132,7 +134,6 @@ export class UserService {
     });
 
     res.cookie('token', token, cookieConfig);
-
     return { user, token };
   }
 
