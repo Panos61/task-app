@@ -41,7 +41,6 @@ const TaskDrawer = ({ task }: Props) => {
 
   useEffect(() => {
     if (users) {
-      console.log(users);
       setSelectData(
         users.map((user: User) => ({ value: user.id, label: user.username }))
       );
@@ -141,9 +140,6 @@ const TaskDrawer = ({ task }: Props) => {
 
   const renderAssignee = () => {
     if (task?.assigneeID) {
-      console.log(
-        selectData.find((user) => user.value === task?.assigneeID)?.label
-      );
       return selectData.find((user) => user.value === task?.assigneeID)?.value;
     }
     return null;
