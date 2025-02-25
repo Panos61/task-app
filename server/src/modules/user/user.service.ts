@@ -54,23 +54,26 @@ export class UserService {
       [userID]
     );
     const tasks: Task[] = tasksResult.rows;
+
     const taskCompleted: number = tasks.filter(
       (task: Task) => task.status === 'DONE'
     ).length;
 
-    // const collaboratorsResult = await pool.query(
-    //   'SELECT COUNT(user_id) FROM project_users WHERE EXISTS',
-    //   [userID]
-    // );
-    // const collaborators: number = collaboratorsResult.rows[0];
-    // console.log('collaborators', collaborators);
+    const collaboratorsResult = await pool.query(
+      `SELECT COUNT(DISTINCT pu2.user_id) as count
+       FROM project_users pu1
+       JOIN project_users pu2 ON pu1.project_id = pu2.project_id AND pu2.user_id != $1
+       WHERE pu1.user_id = $1`,
+      [userID]
+    );
+    const collaborators: number = collaboratorsResult.rows[0].count;
 
     return {
       id: userID,
       projectCount: projects.length,
       tasksCompleted: taskCompleted,
       tasksAssigned: tasks.length,
-      collaborators: 0,
+      collaborators: collaborators,
       projects: projects,
       tasks: tasks,
     };
