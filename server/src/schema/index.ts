@@ -88,20 +88,4 @@ export const typeDefs = gql`
     updateTask(input: TaskInput): Task
     deleteTask(taskID: ID!): Boolean!
   }
-
-  type Subscription {
-    taskCreated(
-      projectID: ID!
-      title: String!
-      description: String
-      status: String
-    ): Task!
-    taskUpdated(
-      projectID: ID!
-      title: String!
-      description: String!
-      status: String!
-    ): Task!
-    taskDeleted(taskID: ID!): ID!
-  }
 `;

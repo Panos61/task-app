@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GraphQLError } from 'graphql';
+
 import type { User, Overview } from './user.model.js';
 import type { Task } from '@/modules/task/task.model.js';
 import pool from '@/utils/database.js';

@@ -7,8 +7,6 @@ import { GraphQLError } from 'graphql';
 import express from 'express';
 import http from 'http';
 import cors from 'cors';
-import { WebSocketServer } from 'ws';
-import { useServer } from 'graphql-ws/use/ws';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
 import { typeDefs } from '@/schema/index.js';
@@ -44,34 +42,6 @@ const bootstrap = async () => {
     schema,
   });
 
-  server.addPlugin({
-    async serverWillStart() {
-      return {
-        async drainServer() {
-          await serverCleanup.dispose();
-        },
-      };
-    },
-  });
-
-  const wsServer = new WebSocketServer({
-    server: httpServer,
-    path: '/graphql',
-  });
-
-  const serverCleanup = useServer({
-    schema,
-    context: async (ctx) => {
-      const token = ctx.connectionParams?.token as string;
-      if (!token) return { user: null };
-      try {
-        const userID = getUserIDFromToken(token);
-        return { user: { id: userID } };
-      } catch {
-        throw new GraphQLError('Invalid token');
-      }
-    },
-  }, wsServer);
   await server.start();
 
   app.use(
