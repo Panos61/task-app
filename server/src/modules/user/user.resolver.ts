@@ -39,8 +39,12 @@ export const userResolvers = {
     },
   },
   Mutation: {
-    register: async (_: any, { input }: { input: RegisterInput }) => {
-      return await userService.register(input.username, input.password);
+    register: async (
+      _: any,
+      { input }: { input: RegisterInput },
+      { res }: Context
+    ) => {
+      return await userService.register(input.username, input.password, res);
     },
     login: async (
       _: any,
