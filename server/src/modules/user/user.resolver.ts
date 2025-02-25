@@ -15,7 +15,11 @@ export const userResolvers = {
       }
       return await userService.me(context.user.id);
     },
-    users: async (_: never, { projectID }: { projectID: string }, context: Context) => {
+    users: async (
+      _: never,
+      { projectID }: { projectID: string },
+      context: Context
+    ) => {
       if (!context.user) {
         throw new GraphQLError('Not authenticated', {
           extensions: { code: 'UNAUTHENTICATED', http: { status: 401 } },
@@ -38,11 +42,15 @@ export const userResolvers = {
     register: async (_: any, { input }: { input: RegisterInput }) => {
       return await userService.register(input.username, input.password);
     },
-    login: async (_: any, { input }: { input: LoginInput }) => {
-      return await userService.login(input.username, input.password);
+    login: async (
+      _: any,
+      { input }: { input: LoginInput },
+      { res }: Context
+    ) => {
+      return await userService.login(input.username, input.password, res);
     },
-    logout: async (_: any, __: any) => {
-      return await userService.logout();
+    logout: async (_: any, __: any, { res }: Context) => {
+      return await userService.logout(res);
     },
     deleteAccount: async (_: any, __: any, context: Context) => {
       if (!context.user) {

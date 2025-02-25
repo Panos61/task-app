@@ -47,8 +47,7 @@ export const Auth = () => {
 
   const handleLoginSubmit = ({ username, password }: LoginValues) => {
     login({ variables: { input: { username, password } } }).then((res) => {
-      if (res.data && res.data.login) {
-        localStorage.setItem('token', res.data.login.token);
+      if (res.data) {
         client.resetStore().then(() => {
           navigate('/dashboard');
         });
@@ -58,9 +57,10 @@ export const Auth = () => {
 
   const handleRegisterSubmit = ({ username, password }: RegisterValues) => {
     register({ variables: { input: { username, password } } }).then((res) => {
-      if (res.data && res.data.register) {
-        localStorage.setItem('token', res.data.register.token);
-        navigate('/dashboard');
+      if (res.data) {
+        client.resetStore().then(() => {
+          navigate('/dashboard');
+        });
       }
     });
   };
@@ -233,11 +233,11 @@ export const Auth = () => {
                   {isSubmitting || registerLoading ? 'Loading...' : 'Register'}
                 </Button>
                 {registerError && (
-                  <span className='text-xs text-red-500 mt-8'>
+                  <span className='mt-8 text-xs text-red-500'>
                     {registerError.message}
                   </span>
                 )}
-                <span className='text-xs mt-8'>
+                <span className='mt-8 text-xs'>
                   Already have an account?{' '}
                   <button
                     type='button'
