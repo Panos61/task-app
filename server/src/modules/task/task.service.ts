@@ -1,7 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { Task } from './task.model.js';
 import pool from '@/utils/database.js';
-import { pubsub, EVENTS } from '@/utils/pubsub.js';
 
 export class TaskService {
   async getTask(id: string): Promise<Task> {
@@ -58,14 +57,6 @@ export class TaskService {
 
     await pool.query('COMMIT');
 
-    await pubsub.publish(EVENTS.TASK_CREATED, {
-      taskCreated: {
-        ...createdTask,
-        projectID: createdTask.project_id,
-        assigneeID: createdTask.assignee_id,
-      },
-    });
-
     return {
       id: createdTask.id,
       title: createdTask.title,
@@ -82,7 +73,7 @@ export class TaskService {
   async updateTask(task: Task): Promise<Task> {
     const assigneeID = task.assigneeID ? parseInt(task.assigneeID) : null;
     const timestamp: string = new Date().toISOString();
-    
+
     const result = await pool.query(
       `UPDATE tasks 
         SET title = COALESCE($1, title),
@@ -113,7 +104,6 @@ export class TaskService {
       });
     }
 
-    await pubsub.publish(EVENTS.TASK_UPDATED, { taskUpdated: updatedTask });
     return {
       id: updatedTask.id,
       title: updatedTask.title,
@@ -138,7 +128,6 @@ export class TaskService {
       });
     }
 
-    await pubsub.publish(EVENTS.TASK_DELETED, { id: taskID });
     return true;
   }
 }
