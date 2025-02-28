@@ -48,7 +48,7 @@ export class ProjectService {
     
     // Create a map of project_id to collaborator count for easier lookup
     const collaboratorMap = new Map(
-      collaboratorsResult.rows.map(row => [row.project_id, parseInt(row.count)])
+      collaboratorsResult.rows.map(row => [row.project_id, parseInt(row.count) - 1])
     );
     
     return projects.rows.map(project => ({

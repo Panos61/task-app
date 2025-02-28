@@ -5,13 +5,20 @@ import pool from '@/utils/database.js';
 export class TaskService {
   async getTask(id: string): Promise<Task> {
     const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [id]);
+
     if (!result.rows) {
       throw new GraphQLError('Task not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
       });
     }
 
-    return result.rows[0];
+    return {
+      ...result.rows[0],
+      assigneeID: result.rows[0].assignee_id,
+      projectID: result.rows[0].project_id,
+      createdAt: result.rows[0].created_at,
+      updatedAt: result.rows[0].updated_at,
+    };
   }
 
   async getTasks(projectID: string): Promise<Task[]> {
@@ -19,13 +26,20 @@ export class TaskService {
       'SELECT * FROM tasks WHERE project_id = $1',
       [projectID]
     );
+
     if (!result.rows) {
       throw new GraphQLError('Failed to get tasks', {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
       });
     }
 
-    return result.rows;
+    return result.rows.map((task) => ({
+      ...task,
+      assigneeID: task.assignee_id,
+      projectID: task.project_id,
+      createdAt: task.created_at,
+      updatedAt: task.updated_at,
+    }));
   }
 
   async createTask(task: Task): Promise<Task> {

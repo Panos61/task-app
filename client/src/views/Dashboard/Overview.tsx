@@ -41,7 +41,7 @@ export const Overview = () => {
   };
 
   const cardCls =
-    'flex flex-col gap-12 w-full h-[400px] p-20 border border-gray-400/20 rounded-12';
+    'flex flex-col gap-12 w-full h-[300px] p-20 border border-gray-400/20 rounded-12';
 
   return (
     <div className='flex flex-col items-center gap-32 h-full mx-24'>
