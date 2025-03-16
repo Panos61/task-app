@@ -213,22 +213,12 @@ const TaskDrawer = ({ task }: Props) => {
           rows={1}
           placeholder='Task name'
           defaultValue={title}
-          style={{
-            width: '100%',
-            minHeight: '40px',
-            height: 'auto',
-            resize: 'none',
-            outline: 'none',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            backgroundColor: 'transparent',
-            overflow: 'hidden',
-          }}
           onChange={(e) => {
             handleTitleChange(e.target.value, setFieldValue!);
             e.target.style.height = 'auto';
             e.target.style.height = e.target.scrollHeight + 'px';
           }}
+          className='w-full min-h-10 h-auto resize-none outline-none text-2xl font-bold bg-transparent overflow-hidden'
         />
         <div className='flex items-center gap-72 text-sm'>
           <span className='w-24'>Assignee</span>
