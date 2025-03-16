@@ -94,7 +94,6 @@ export const Overview = () => {
                     <div
                       key={task.id}
                       className='flex flex-col justify-start gap-12 w-full'
-                      onClick={() => navigate(`/dashboard/board/${task.id}`)}
                     >
                       <div className='flex justify-between w-full'>
                         <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
