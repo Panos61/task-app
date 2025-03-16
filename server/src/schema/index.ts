@@ -48,6 +48,7 @@ export const typeDefs = gql`
     dueDate: DueDate
     projectID: ID
     assigneeID: ID
+    assignee: User
     createdAt: String
     updatedAt: String
   }

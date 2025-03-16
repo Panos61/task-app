@@ -22,6 +22,10 @@ export interface Task {
     startDate: string;
     endDate: string;
   };
+  assignee: {
+    id: string;
+    username: string;
+  };
   createdAt: string;
   updatedAt: string;
 }

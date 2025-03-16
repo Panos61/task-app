@@ -21,7 +21,7 @@ interface Props {
 }
 
 const TaskItem = ({ id, task }: Props) => {
-  const { dueDate, priority, status } = task;
+  const { assignee, assigneeID, dueDate, priority, status } = task;
   const { startDate, endDate } = dueDate;
 
   const [opened, { open, close }] = useDisclosure(false);
@@ -101,10 +101,9 @@ const TaskItem = ({ id, task }: Props) => {
         ref={setNodeRef}
         style={{
           ...style,
-          position: 'relative',
           zIndex: transform ? 999 : 'auto',
         }}
-        className={`${status === 'done' && 'opacity-65'}`}
+        className={`relative ${status === 'done' && 'opacity-65'}`}
         onClick={open}
         {...attributes}
         {...listeners}
@@ -165,9 +164,11 @@ const TaskItem = ({ id, task }: Props) => {
                 </Badge>
               )}
             </div>
-            <Avatar size={24} color='cyan' radius='xl'>
-              MK
-            </Avatar>
+            {assigneeID && (
+              <Avatar size={24} color='cyan' radius='xl'>
+                {assignee?.username.slice(0, 2).toUpperCase()}
+              </Avatar>
+            )}
           </div>
         </div>
         <Celebration

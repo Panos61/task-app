@@ -6,10 +6,20 @@ export class TaskService {
   async getTask(id: string): Promise<Task> {
     const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [id]);
 
-    if (!result.rows) {
+    if (!result.rows[0]) {
       throw new GraphQLError('Task not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
       });
+    }
+
+    // Get assignee information if assignee_id exists
+    let assignee = null;
+    if (result.rows[0].assignee_id) {
+      const assigneeResult = await pool.query(
+        'SELECT id, username, created_at FROM users WHERE id = $1',
+        [result.rows[0].assignee_id]
+      );
+      assignee = assigneeResult.rows[0];
     }
 
     return {
@@ -24,6 +34,7 @@ export class TaskService {
       },
       projectID: result.rows[0].project_id,
       assigneeID: result.rows[0].assignee_id,
+      assignee,
       createdAt: result.rows[0].created_at,
       updatedAt: result.rows[0].updated_at,
     };
@@ -41,6 +52,23 @@ export class TaskService {
       });
     }
 
+    // Get all unique assignee IDs
+    const assigneeIDs = [...new Set(result.rows
+      .map(row => row.assignee_id)
+      .filter(id => id !== null))];
+
+    // Fix: Query for all assignees, not just the first one
+    const assigneeResult = assigneeIDs.length > 0 ? 
+      await pool.query(
+        'SELECT id, username, created_at FROM users WHERE id = ANY($1)',
+        [assigneeIDs]
+      ) : { rows: [] };
+
+    // Create a map of assignee data
+    const assigneeMap = new Map(
+      assigneeResult.rows.map(row => [row.id, row])
+    );
+
     return result.rows.map((row) => ({
       id: row.id,
       title: row.title,
@@ -53,6 +81,7 @@ export class TaskService {
       },
       projectID: row.project_id,
       assigneeID: row.assignee_id,
+      assignee: row.assignee_id ? assigneeMap.get(row.assignee_id) : null,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     }));
@@ -89,6 +118,16 @@ export class TaskService {
       [task.projectID]
     );
 
+    // Get assignee information if assignee_id exists
+    let assignee = null;
+    if (createdTask.assignee_id) {
+      const assigneeResult = await pool.query(
+        'SELECT id, username, created_at FROM users WHERE id = $1',
+        [createdTask.assignee_id]
+      );
+      assignee = assigneeResult.rows[0];
+    }
+
     await pool.query('COMMIT');
 
     return {
@@ -103,13 +142,15 @@ export class TaskService {
       },
       projectID: createdTask.project_id,
       assigneeID: createdTask.assignee_id,
+      assignee,
       createdAt: createdTask.created_at,
       updatedAt: createdTask.updated_at,
     };
   }
 
   async updateTask(task: Task): Promise<Task> {
-    const assigneeID = task.assigneeID ? parseInt(task.assigneeID) : null;
+    // Remove parseInt since assigneeID is a UUID
+    const assigneeID = task.assigneeID || null;
     const timestamp: string = new Date().toISOString();
 
     const dueDate = task.dueDate || { startDate: null, endDate: null };
@@ -148,6 +189,16 @@ export class TaskService {
       });
     }
 
+    // Get assignee information if assignee_id exists
+    let assignee = null;
+    if (updatedTask.assignee_id) {
+      const assigneeResult = await pool.query(
+        'SELECT id, username, created_at FROM users WHERE id = $1',
+        [updatedTask.assignee_id]
+      );
+      assignee = assigneeResult.rows[0];
+    }
+
     return {
       id: updatedTask.id,
       title: updatedTask.title,
@@ -160,6 +211,7 @@ export class TaskService {
       },
       projectID: updatedTask.project_id,
       assigneeID: updatedTask.assignee_id,
+      assignee,
       createdAt: updatedTask.created_at,
       updatedAt: updatedTask.updated_at,
     };
