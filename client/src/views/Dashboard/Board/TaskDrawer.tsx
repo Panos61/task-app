@@ -237,7 +237,7 @@ const TaskDrawer = ({ task }: Props) => {
           ) : (
             <Select
               placeholder='Select Assignee'
-              defaultValue={renderAssignee()}
+              value={renderAssignee()}
               data={selectData}
               comboboxProps={{
                 transitionProps: { transition: 'pop', duration: 200 },

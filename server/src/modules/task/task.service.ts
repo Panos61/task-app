@@ -5,6 +5,7 @@ import pool from '@/utils/database.js';
 export class TaskService {
   async getTask(id: string): Promise<Task> {
     const result = await pool.query('SELECT * FROM tasks WHERE id = $1', [id]);
+
     if (!result.rows) {
       throw new GraphQLError('Task not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
@@ -33,6 +34,7 @@ export class TaskService {
       'SELECT * FROM tasks WHERE project_id = $1',
       [projectID]
     );
+
     if (!result.rows) {
       throw new GraphQLError('Failed to get tasks', {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
