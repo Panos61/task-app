@@ -88,8 +88,8 @@ const ProjectCard = ({ project }: Props) => {
         {isHover && (
           <Trash
             size={16}
-            className='absolute right-24 text-red-500 z-50 duration-150 hover:text-red-600'
             onClick={open}
+            className='absolute right-12 text-red-500 z-50 duration-150 hover:text-red-600'
           />
         )}
       </div>

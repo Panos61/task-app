@@ -166,16 +166,38 @@ export class TaskService {
   }
 
   async deleteTask(taskID: string): Promise<boolean> {
-    const result = await pool.query('DELETE FROM tasks WHERE id = $1', [
-      taskID,
-    ]);
+    await pool.query('BEGIN');
+
+    const taskResult = await pool.query(
+      'SELECT project_id FROM tasks WHERE id = $1',
+      [taskID]
+    );
+    
+    if (!taskResult.rows[0]) {
+      throw new GraphQLError('Task not found', {
+        extensions: { code: 'NOT_FOUND', http: { status: 404 } },
+      });
+    }
+    
+    const projectID = taskResult.rows[0].project_id;
+    
+    // Delete the task
+    const result = await pool.query('DELETE FROM tasks WHERE id = $1', [taskID]);
 
     if (!result.rowCount) {
+      await pool.query('ROLLBACK');
       throw new GraphQLError('Failed to delete task', {
         extensions: { code: 'BAD_REQUEST', http: { status: 400 } },
       });
     }
 
+    // Decrement the project's task count
+    await pool.query(
+      'UPDATE projects SET task_count = task_count - 1 WHERE id = $1',
+      [projectID]
+    );
+
+    await pool.query('COMMIT');
     return true;
   }
 }
