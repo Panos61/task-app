@@ -21,6 +21,9 @@ interface Props {
 }
 
 const TaskItem = ({ id, task }: Props) => {
+  const { dueDate, priority, status } = task;
+  const { startDate, endDate } = dueDate;
+
   const [opened, { open, close }] = useDisclosure(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -59,9 +62,9 @@ const TaskItem = ({ id, task }: Props) => {
   const checkStyle = classNames(
     'relative top-4 text-center size-16 rounded-full border border-gray-400/95 duration-300 hover:border-green-700 cursor-pointer',
     {
-      'border-green-700': task.status === 'done',
-      'bg-green-800': task.status === 'done',
-      'opacity-65': task.status === 'done',
+      'border-green-700': status === 'done',
+      'bg-green-800': status === 'done',
+      'opacity-65': status === 'done',
     }
   );
 
@@ -101,7 +104,7 @@ const TaskItem = ({ id, task }: Props) => {
           position: 'relative',
           zIndex: transform ? 999 : 'auto',
         }}
-        className={`${task.status === 'done' && 'opacity-65'}`}
+        className={`${status === 'done' && 'opacity-65'}`}
         onClick={open}
         {...attributes}
         {...listeners}
@@ -134,16 +137,34 @@ const TaskItem = ({ id, task }: Props) => {
                 )}
               </div>
             </div>
-            {task.priority && (
-              <Badge
-                variant='light'
-                radius='sm'
-                color={setPriorityColor(task.priority)}
-                className='mb-8'
-              >
-                {task.priority?.toUpperCase()}
-              </Badge>
-            )}
+            <div className='flex gap-8'>
+              {priority && (
+                <Badge
+                  variant='light'
+                  radius='sm'
+                  color={setPriorityColor(priority)}
+                  className='mb-8'
+                >
+                  {priority.toUpperCase()}
+                </Badge>
+              )}
+              {(startDate || endDate) && (
+                <Badge
+                  variant='light'
+                  radius='sm'
+                  color='gray'
+                  className='mb-8'
+                >
+                  <span className='text-green-400/65'>{startDate}</span>
+                  {endDate && (
+                    <>
+                      <span className='text-gray-400/95'> - </span>
+                      <span className='text-red-500/85'>{endDate}</span>
+                    </>
+                  )}
+                </Badge>
+              )}
+            </div>
             <Avatar size={24} color='cyan' radius='xl'>
               MK
             </Avatar>

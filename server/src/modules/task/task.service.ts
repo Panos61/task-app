@@ -11,7 +11,21 @@ export class TaskService {
       });
     }
 
-    return result.rows[0];
+    return {
+      id: result.rows[0].id,
+      title: result.rows[0].title,
+      description: result.rows[0].description,
+      status: result.rows[0].status,
+      priority: result.rows[0].priority,
+      dueDate: {
+        startDate: result.rows[0].start_date,
+        endDate: result.rows[0].end_date,
+      },
+      projectID: result.rows[0].project_id,
+      assigneeID: result.rows[0].assignee_id,
+      createdAt: result.rows[0].created_at,
+      updatedAt: result.rows[0].updated_at,
+    };
   }
 
   async getTasks(projectID: string): Promise<Task[]> {
@@ -25,19 +39,37 @@ export class TaskService {
       });
     }
 
-    return result.rows;
+    return result.rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      status: row.status,
+      priority: row.priority,
+      dueDate: {
+        startDate: row.start_date,
+        endDate: row.end_date,
+      },
+      projectID: row.project_id,
+      assigneeID: row.assignee_id,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    }));
   }
 
   async createTask(task: Task): Promise<Task> {
+    const dueDate = task.dueDate || { startDate: null, endDate: null };
+
     await pool.query('BEGIN');
 
     const result = await pool.query(
-      'INSERT INTO tasks (title, description, status, priority, project_id, assignee_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+      'INSERT INTO tasks (title, description, status, priority, start_date, end_date, project_id, assignee_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
       [
         task.title,
         task.description,
         task.status,
         task.priority,
+        dueDate.startDate || null,
+        dueDate.endDate || null,
         task.projectID,
         task.assigneeID || null,
       ]
@@ -63,6 +95,10 @@ export class TaskService {
       description: createdTask.description,
       status: createdTask.status,
       priority: createdTask.priority,
+      dueDate: {
+        startDate: createdTask.start_date,
+        endDate: createdTask.end_date,
+      },
       projectID: createdTask.project_id,
       assigneeID: createdTask.assignee_id,
       createdAt: createdTask.created_at,
@@ -74,22 +110,28 @@ export class TaskService {
     const assigneeID = task.assigneeID ? parseInt(task.assigneeID) : null;
     const timestamp: string = new Date().toISOString();
 
+    const dueDate = task.dueDate || { startDate: null, endDate: null };
+
     const result = await pool.query(
       `UPDATE tasks 
         SET title = COALESCE($1, title),
          description = COALESCE($2, description),
          status = COALESCE($3, status),
          priority = COALESCE($4, priority),
-         assignee_id = COALESCE($5, assignee_id),
-         project_id = COALESCE($6, project_id),
-         updated_at = $7
-        WHERE id = $8
+         start_date = COALESCE($5, start_date),
+         end_date = COALESCE($6, end_date),
+         assignee_id = COALESCE($7, assignee_id),
+         project_id = COALESCE($8, project_id),
+         updated_at = $9
+        WHERE id = $10
        RETURNING *`,
       [
         task.title,
         task.description,
         task.status,
         task.priority,
+        dueDate.startDate || null,
+        dueDate.endDate || null,
         assigneeID,
         task.projectID,
         timestamp,
@@ -110,6 +152,10 @@ export class TaskService {
       description: updatedTask.description,
       status: updatedTask.status,
       priority: updatedTask.priority,
+      dueDate: {
+        startDate: updatedTask.start_date,
+        endDate: updatedTask.end_date,
+      },
       projectID: updatedTask.project_id,
       assigneeID: updatedTask.assignee_id,
       createdAt: updatedTask.created_at,

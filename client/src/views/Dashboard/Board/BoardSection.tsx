@@ -184,6 +184,10 @@ const BoardSection = ({
                   status: task.status,
                   description: task.description,
                   priority: task.priority,
+                  dueDate: {
+                    startDate: task.dueDate?.startDate,
+                    endDate: task.dueDate?.endDate,
+                  },
                   assigneeID: task.assigneeID,
                 }}
                 validationSchema={taskValidationSchema}
