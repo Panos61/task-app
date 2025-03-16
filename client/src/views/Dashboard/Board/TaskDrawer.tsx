@@ -11,7 +11,7 @@ import type { User } from '@graphql/user/types';
 import type { Task } from '@graphql/task/types';
 import { GET_USERS } from '@graphql/user/queries';
 import { UPDATE_TASK, DELETE_TASK } from '@graphql/task/mutations';
-import { useDebounce } from '../useDebounce';
+import { useDebounce } from '../utils/useDebounce';
 
 interface Props {
   task: Task;

@@ -82,7 +82,7 @@ export const Dashboard = () => {
       <AppShell.Navbar p='md' className='flex flex-col justify-between'>
         <AppShell.Section component={ScrollArea}>
           <div className='flex flex-col gap-8'>
-            <div className='flex items-center gap-12'>
+            <div className='flex items-center gap-12 mb-[2px]'>
               <span className='font-bold'>Projects</span>
               <Button
                 variant='outline'

@@ -1,27 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useLocation } from 'react-router';
-import { Formik, FormikProvider } from 'formik';
-import {
-  useSensors,
-  useSensor,
-  PointerSensor,
-  DndContext,
-  closestCorners,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverEvent,
-  DragOverlay,
-  DropAnimation,
-  defaultDropAnimation,
-} from '@dnd-kit/core';
+import { DragEndEvent, DragStartEvent, DragOverEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Divider, Skeleton } from '@mantine/core';
-import { useClipboard } from '@mantine/hooks';
-import { CopyIcon } from 'lucide-react';
 
 import { GET_TASKS } from '@graphql/task/queries';
-import { GET_PROJECT } from '@graphql/project/queries';
 import { UPDATE_TASK } from '@graphql/task/mutations';
 
 import {
@@ -30,14 +13,13 @@ import {
   BoardSections as BoardSectionsType,
   getTaskById,
 } from './utils';
-import BoardSection from './BoardSection';
-import TaskItem from './TaskItem';
+import BoardLayout from './BoardLayout';
+import TaskBoard from './TaskBoard';
+import GanttView from './GanttView';
 
 const BoardSectionList = () => {
   const { pathname } = useLocation();
   const projectID = pathname.split('/')[3];
-
-  const clipboard = useClipboard({ timeout: 500 });
 
   const { data, loading: tasksLoading } = useQuery(GET_TASKS, {
     variables: { projectID },
@@ -49,6 +31,7 @@ const BoardSectionList = () => {
   const [activeTaskId, setActiveTaskId] = useState<null | string>(null);
   const [boardSections, setBoardSections] =
     useState<BoardSectionsType>(initialBoardSections);
+  const [renderGantt, setRenderGantt] = useState(false);
 
   // Initialize and set each board section with the api task data
   useEffect(() => {
@@ -73,21 +56,7 @@ const BoardSectionList = () => {
     };
   }, [backlogTasks, inProgressTasks, doneTasks]);
 
-  const { data: projectData, loading: projectLoading } = useQuery(GET_PROJECT, {
-    variables: { projectID },
-  });
-  const project = projectData?.project;
-
   const [updateTask] = useMutation(UPDATE_TASK);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 200,
-        distance: 10,
-      },
-    })
-  );
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     setActiveTaskId(active.id as string);
@@ -190,101 +159,28 @@ const BoardSectionList = () => {
 
   const task = activeTaskId ? getTaskById(tasks, activeTaskId) : null;
 
-  const dropAnimation: DropAnimation = {
-    ...defaultDropAnimation,
-  };
-
-  if (projectLoading)
-    return <Skeleton height={12} mt={12} ml={72} width='16%' radius='xl' />;
-
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCorners}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
+    <BoardLayout
+      projectID={projectID}
+      renderGantt={renderGantt}
+      setRenderGantt={setRenderGantt}
     >
-      <div className='flex items-center gap-12 mb-[10px] ml-72'>
-        <div className='flex gap-8 items-center'>
-          <div
-            className='size-16 rounded-4'
-            style={{ backgroundColor: project?.color }}
-          />
-          <span className='text-xl font-bold'>{project?.name}</span>
-        </div>
-        <div
-          className='flex gap-8 items-center cursor-pointer'
-          onClick={() => {
-            clipboard.copy(project?.invitation);
-          }}
-        >
-          {clipboard.copied ? (
-            <span className='text-sm text-gray-400/95'>Copied</span>
-          ) : (
-            <>
-              <span className='text-sm text-gray-400/95'>
-                {project?.invitation}
-              </span>
-              <CopyIcon size={16} className='text-gray-400/95' />
-            </>
-          )}
-        </div>
-        <Divider orientation='vertical' />
-        <div className='flex gap-4 text-sm text-gray-400/95'>
-          <span>Collaborators:</span>
-          <span className='font-bold text-text-primary'>{project?.collaborators}</span>
-        </div>
-      </div>
-      <Divider className='mb-12' />
-      <div className='grid grid-cols-3 gap-4 ml-68'>
-        {Object.keys(boardSections).map((boardSectionKey) => (
-          <div className='w-[400px]' key={boardSectionKey}>
-            {tasksLoading ? (
-              Array(4)
-                .fill(0)
-                .map((_, index) => (
-                  <Skeleton key={index} h={116} mt='sm' animate />
-                ))
-            ) : (
-              <BoardSection
-                id={boardSectionKey}
-                title={boardSectionKey}
-                tasks={boardSections[boardSectionKey]}
-                setBoardSections={setBoardSections}
-                sectionTaskCount={sectionTaskCount}
-              />
-            )}
-          </div>
-        ))}
-        <DragOverlay dropAnimation={dropAnimation}>
-          {task && (
-            <Formik
-              initialValues={{
-                title: task.title,
-                status: task.status,
-                description: task.description,
-                priority: task.priority,
-                dueDate: {
-                  startDate: task.dueDate?.startDate,
-                  endDate: task.dueDate?.endDate,
-                },
-                assigneeID: task.assigneeID,
-              }}
-              // validationSchema={taskValidationSchema}
-              enableReinitialize
-              onSubmit={() => {}}
-            >
-              {(formikProps) => (
-                <FormikProvider value={formikProps}>
-                  <TaskItem id={task.id} task={task} />
-                </FormikProvider>
-              )}
-            </Formik>
-          )}
-        </DragOverlay>
-      </div>
-    </DndContext>
+      {renderGantt ? (
+        <GanttView tasks={tasks} />
+      ) : (
+        <TaskBoard
+          tasks={tasks}
+          boardSections={boardSections}
+          setBoardSections={setBoardSections}
+          activeTask={task}
+          tasksLoading={tasksLoading}
+          sectionTaskCount={sectionTaskCount}
+          handleDragStart={handleDragStart}
+          handleDragOver={handleDragOver}
+          handleDragEnd={handleDragEnd}
+        />
+      )}
+    </BoardLayout>
   );
 };
 
