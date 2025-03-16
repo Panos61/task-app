@@ -6,7 +6,7 @@ export const typeDefs = gql`
     username: String!
     created_at: String!
   }
-  
+
   type UserOverview {
     id: ID!
     projectCount: Int!
@@ -34,12 +34,18 @@ export const typeDefs = gql`
     updated_at: String!
   }
 
+  type DueDate {
+    startDate: String
+    endDate: String
+  }
+
   type Task {
     id: ID!
     title: String
     description: String
     status: String
     priority: String
+    dueDate: DueDate
     projectID: ID
     assigneeID: ID
     createdAt: String
@@ -56,12 +62,18 @@ export const typeDefs = gql`
     color: String!
   }
 
+  input DueDateInput {
+    startDate: String
+    endDate: String
+  }
+
   input TaskInput {
     id: ID
     title: String
     description: String
     status: String
     priority: String
+    dueDate: DueDateInput
     projectID: ID
     assigneeID: ID
   }

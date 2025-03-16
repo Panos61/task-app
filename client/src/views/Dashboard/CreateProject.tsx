@@ -18,7 +18,9 @@ const formValidation = Yup.object({
 });
 
 export const CreateProject = () => {
-  const { data } = useQuery(GET_ME);
+  const { data } = useQuery(GET_ME, {
+    fetchPolicy: 'cache-only',
+  });
   const meData = data?.me;
 
   const [createProject, { loading, error }] = useMutation(CREATE_PROJECT, {

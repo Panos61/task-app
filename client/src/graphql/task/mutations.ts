@@ -8,6 +8,10 @@ export const CREATE_TASK = gql`
       description
       status
       priority
+      dueDate {
+        startDate
+        endDate
+      }
       projectID
       assigneeID
       createdAt
@@ -24,6 +28,10 @@ export const UPDATE_TASK = gql`
       description
       status
       priority
+      dueDate {
+        startDate
+        endDate
+      }
       projectID
       assigneeID
       createdAt

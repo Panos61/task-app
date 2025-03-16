@@ -6,6 +6,10 @@ export interface Task {
   description: string;
   status: string;
   priority: string;
+  dueDate: {
+    startDate: string;
+    endDate: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
