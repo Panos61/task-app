@@ -16,7 +16,7 @@ export class ProjectService {
     }
     
     const collaboratorsResult = await pool.query('SELECT COUNT(user_id) FROM project_users WHERE project_id = $1', [projectID]);
-    const collaborators: number = collaboratorsResult.rows[0].count;
+    const collaborators: number = parseInt(collaboratorsResult.rows[0].count) - 1;
 
     return {
       ...result.rows[0],
