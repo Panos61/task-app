@@ -4,6 +4,7 @@ import { useLocation } from 'react-router';
 import { useFormikContext } from 'formik';
 import classNames from 'classnames';
 import { Divider, Textarea, Skeleton, Select } from '@mantine/core';
+import { DateInput } from '@mantine/dates';
 import { Check, Trash } from 'lucide-react';
 
 import type { User } from '@graphql/user/types';
@@ -23,6 +24,18 @@ const priorityOptions = [
 ];
 
 const TaskDrawer = ({ task }: Props) => {
+  const {
+    assigneeID,
+    description,
+    dueDate,
+    priority,
+    status,
+    title,
+    createdAt,
+    updatedAt,
+  } = task;
+  const { startDate, endDate } = dueDate;
+
   const { pathname } = useLocation();
   const projectID = pathname.split('/')[3];
 
@@ -139,10 +152,24 @@ const TaskDrawer = ({ task }: Props) => {
   };
 
   const renderAssignee = () => {
-    if (task?.assigneeID) {
-      return selectData.find((user) => user.value === task?.assigneeID)?.value;
+    if (assigneeID) {
+      return selectData.find((user) => user.value === assigneeID)?.value;
     }
     return null;
+  };
+
+  const handleDueDateChange = (value: Date | null, isStartDate: boolean) => {
+    if (!value) return;
+
+    const dateStr = value.toISOString().split('T')[0];
+
+    const dueDateInput = {
+      startDate: isStartDate ? dateStr : startDate,
+      endDate: !isStartDate ? dateStr : endDate,
+    };
+
+    setFieldValue('dueDate', dueDateInput);
+    debouncedUpdate({ dueDate: dueDateInput });
   };
 
   const formatDate = (timestamp: string) => {
@@ -159,103 +186,128 @@ const TaskDrawer = ({ task }: Props) => {
   const completeCls = classNames(
     'flex items-center gap-4 w-auto p-4 mb-8 text-xs font-semibold border border-gray-400/20 rounded-4 duration-300 cursor-pointer hover:bg-green-600/15 hover:border-green-600 hover:text-green-600',
     {
-      'bg-green-600/15 border-green-600 text-green-600':
-        task?.status === 'done',
+      'bg-green-600/15 border-green-600 text-green-600': status === 'done',
     }
   );
 
+  console.log(task);
+
   return (
     <div className='flex flex-col justify-between w-full'>
-      <div>
-        <div className='flex gap-8'>
-          <div className={completeCls} onClick={handleCompleteTask}>
-            <Check size={16} />
-            {task?.status === 'done' ? 'Completed' : 'Mark complete'}
-          </div>
-          <div
-            className='flex items-center gap-4 p-4 mb-8 text-xs text-red-500 font-semibold border border-red-500 rounded-4 duration-300 cursor-pointer hover:bg-red-600/15 hover:border-red-600 hover:text-red-600'
-            onClick={handleDeleteTask}
-          >
-            <Trash size={16} />
-            Delete
-          </div>
+      <div className='flex gap-8'>
+        <div className={completeCls} onClick={handleCompleteTask}>
+          <Check size={16} />
+          {status === 'done' ? 'Completed' : 'Mark complete'}
         </div>
-        <Divider />
-        <div className='flex flex-col gap-16 mt-8'>
-          <textarea
-            rows={1}
-            placeholder='Task name'
-            defaultValue={task?.title}
-            style={{
-              width: '100%',
-              minHeight: '40px',
-              height: 'auto',
-              resize: 'none',
-              outline: 'none',
-              fontSize: '24px',
-              fontWeight: 'bold',
-              backgroundColor: 'transparent',
-              overflow: 'hidden',
-            }}
-            onChange={(e) => {
-              handleTitleChange(e.target.value, setFieldValue!);
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
+        <div
+          className='flex items-center gap-4 p-4 mb-8 text-xs text-red-500 font-semibold border border-red-500 rounded-4 duration-300 cursor-pointer hover:bg-red-600/15 hover:border-red-600 hover:text-red-600'
+          onClick={handleDeleteTask}
+        >
+          <Trash size={16} />
+          Delete
+        </div>
+      </div>
+      <Divider />
+      <div className='flex flex-col gap-16 mt-8'>
+        <textarea
+          rows={1}
+          placeholder='Task name'
+          defaultValue={title}
+          style={{
+            width: '100%',
+            minHeight: '40px',
+            height: 'auto',
+            resize: 'none',
+            outline: 'none',
+            fontSize: '24px',
+            fontWeight: 'bold',
+            backgroundColor: 'transparent',
+            overflow: 'hidden',
+          }}
+          onChange={(e) => {
+            handleTitleChange(e.target.value, setFieldValue!);
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
+        />
+        <div className='flex items-center gap-72 text-sm'>
+          <span className='w-24'>Assignee</span>
+          {loading ? (
+            <Skeleton height={30} width={300} />
+          ) : (
+            <Select
+              placeholder='Select Assignee'
+              defaultValue={renderAssignee()}
+              data={selectData}
+              comboboxProps={{
+                transitionProps: { transition: 'pop', duration: 200 },
+              }}
+              onChange={(value) => {
+                handleAssigneeChange(value);
+              }}
+              className='w-[300px]'
+            />
+          )}
+        </div>
+        <div className='flex items-center gap-72 text-sm'>
+          <span className='w-24'>Priority</span>
+          <Select
+            placeholder='Select Priority'
+            data={priorityOptions}
+            value={priority || values.priority}
+            className='w-[300px]'
+            onChange={(value) => {
+              setFieldValue('priority', value);
+              debouncedUpdate({ priority: value });
             }}
           />
-          <div className='flex items-center gap-72 text-sm'>
-            <span className='w-24'>Assignee</span>
+        </div>
+        <div className='flex gap-72 text-sm'>
+          <div className='flex gap-24'>
             {loading ? (
               <Skeleton height={30} width={300} />
             ) : (
-              <Select
-                placeholder='Select Assignee'
-                defaultValue={renderAssignee()}
-                data={selectData}
-                comboboxProps={{
-                  transitionProps: { transition: 'pop', duration: 200 },
-                }}
-                onChange={(value) => {
-                  handleAssigneeChange(value);
-                }}
-                className='w-[300px]'
-              />
+              <>
+                <DateInput
+                  label='Start Date'
+                  placeholder='Start Date'
+                  value={startDate ? new Date(startDate) : undefined}
+                  onChange={(value) => {
+                    handleDueDateChange(value, true);
+                  }}
+                />
+                <DateInput
+                  label='End Date'
+                  placeholder='End Date'
+                  value={endDate ? new Date(endDate) : undefined}
+                  onChange={(value) => {
+                    handleDueDateChange(value, false);
+                  }}
+                />
+              </>
             )}
           </div>
-          <div className='flex items-center gap-72 text-sm'>
-            <span className='w-24'>Priority</span>
-            <Select
-              placeholder='Select Priority'
-              data={priorityOptions}
-              value={task?.priority || values.priority}
-              className='w-[300px]'
-              onChange={(value) => {
-                setFieldValue('priority', value);
-                debouncedUpdate({ priority: value });
-              }}
-            />
-          </div>
-          <div className='flex flex-col gap-4 text-sm'>
-            <span className='text-md'>Description</span>
-            <Textarea
-              autosize
-              placeholder='What is this task about?'
-              defaultValue={task?.description}
-              minRows={8}
-              onChange={(e) => {
-                setFieldValue('description', e.target.value);
-                debouncedUpdate({ description: e.target.value });
-              }}
-            />
-          </div>
+        </div>
+        <div className='flex flex-col gap-4 text-sm'>
+          <span className='text-md'>Description</span>
+          <Textarea
+            autosize
+            placeholder='What is this task about?'
+            defaultValue={description}
+            minRows={8}
+            onChange={(e) => {
+              setFieldValue('description', e.target.value);
+              debouncedUpdate({ description: e.target.value });
+            }}
+          />
         </div>
       </div>
       <div className='flex flex-col gap-4 mt-32'>
         <span className='text-xs text-gray-400'>
-          Created at {formatDate(task?.createdAt)}.
+          Created at {formatDate(createdAt)}.
         </span>
         <span className='text-xs text-gray-400'>
-          Updated at {formatDate(task?.updatedAt)}.
+          Updated at {formatDate(updatedAt)}.
         </span>
       </div>
     </div>
