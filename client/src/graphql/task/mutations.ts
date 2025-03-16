@@ -14,6 +14,10 @@ export const CREATE_TASK = gql`
       }
       projectID
       assigneeID
+      assignee {
+        id
+        username
+      }
       createdAt
       updatedAt
     }
@@ -34,6 +38,10 @@ export const UPDATE_TASK = gql`
       }
       projectID
       assigneeID
+      assignee {
+        id
+        username
+      }
       createdAt
       updatedAt
     }

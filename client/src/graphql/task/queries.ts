@@ -13,6 +13,10 @@ export const GET_TASK = gql`
         endDate
       }
       assigneeID
+      assignee {
+        id
+        username
+      }
       projectID
       createdAt
       updatedAt
@@ -33,6 +37,10 @@ export const GET_TASKS = gql`
         endDate
       }
       assigneeID
+      assignee {
+        id
+        username
+      }
       projectID
       createdAt
       updatedAt
