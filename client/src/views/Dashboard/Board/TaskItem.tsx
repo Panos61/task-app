@@ -11,7 +11,7 @@ import { Check } from 'lucide-react';
 import type { Task } from '@graphql/task/types';
 import { UPDATE_TASK } from '@graphql/task/mutations';
 
-import { useDebounce } from '../useDebounce';
+import { useDebounce } from '../utils/useDebounce';
 import Celebration from '../components/Celebration';
 import TaskDrawer from './TaskDrawer';
 

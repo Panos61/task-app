@@ -1,5 +1,7 @@
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import 'gantt-task-react/dist/index.css';
+
 
 import { createBrowserRouter, RouterProvider } from 'react-router';
 import { MantineProvider } from '@mantine/core';
