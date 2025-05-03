@@ -12,8 +12,11 @@ import { onError } from '@apollo/client/link/error';
 import App from './App.tsx';
 import './index.css';
 
+// Use the environment variable if available, otherwise fall back to localhost
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql';
+
 const httpLink = createHttpLink({
-  uri: 'http://localhost:4000/graphql',
+  uri: apiUrl,
   credentials: 'include',
 });
 
@@ -31,6 +34,7 @@ const errorLink = onError(({ graphQLErrors }) => {
 
 const client = new ApolloClient({
   link: from([errorLink, httpLink]),
+  credentials: 'include',
   cache: new InMemoryCache(),
   connectToDevTools: true,
 });

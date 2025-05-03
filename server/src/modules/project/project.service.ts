@@ -69,7 +69,7 @@ export class ProjectService {
       await pool.query('BEGIN');
 
       const projectResult = await pool.query(
-        'INSERT INTO projects (name, color, owner_id, invitation) VALUES ($1, $2, $3, $4) RETURNING *',
+        'INSERT INTO projects (name, color, owner_id, invitation, task_count) VALUES ($1, $2, $3, $4, 0) RETURNING *',
         [name, color, ownerID, invitationCode]
       );
 
@@ -86,6 +86,7 @@ export class ProjectService {
       );
 
       await pool.query('COMMIT');
+      console.log('project created', project);
       return project;
     } catch (error) {
       console.error(error);
