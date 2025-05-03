@@ -1,16 +1,14 @@
 import pg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import config from '@/config.js';
 
 const { Pool } = pg;
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME,
+  user: config.DB_USER,
+  password: config.DB_PASSWORD,
+  host: config.DB_HOST,
+  port: config.DB_PORT,
+  database: config.DB_NAME,
 });
 
 pool

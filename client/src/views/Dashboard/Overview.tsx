@@ -86,7 +86,7 @@ export const Overview = () => {
             </div>
             <ScrollArea h={320}>
               <div className='w-[500px] flex flex-col items-center gap-8'>
-                {overview.projectCount === 0 && (
+                {overview?.tasksAssigned === 0 && (
                   <span className='text-sm'>No tasks yet.</span>
                 )}
                 {overview &&
@@ -125,7 +125,7 @@ export const Overview = () => {
             </div>
             <ScrollArea h={320}>
               <div className='w-[500px] flex flex-col items-center gap-8'>
-                {overview.projectCount === 0 && (
+                {overview?.projectCount === 0 && (
                   <span className='text-sm'>No projects yet.</span>
                 )}
                 {overview &&
