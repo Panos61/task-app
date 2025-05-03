@@ -169,45 +169,45 @@ const BoardSection = ({
           <PlusIcon size={16} strokeWidth={3} />
         </div>
       </div>
-      <DroppableContainer id={id}>
-        <SortableContext
-          id={id}
-          items={tasks}
-          strategy={verticalListSortingStrategy}
-        >
-          <div ref={setNodeRef}>
-            {tasks.map((task) => (
-              <Formik
-                key={task.id}
-                initialValues={{
-                  title: task.title,
-                  status: task.status,
-                  description: task.description,
-                  priority: task.priority,
-                  dueDate: {
-                    startDate: task.dueDate?.startDate,
-                    endDate: task.dueDate?.endDate,
-                  },
-                  assigneeID: task.assigneeID,
-                }}
-                validationSchema={taskValidationSchema}
-                enableReinitialize
-                onSubmit={() => {}}
-              >
-                {(formikProps) => (
-                  <FormikProvider value={formikProps}>
-                    <div ref={taskRef}>
+      <div ref={taskRef}>
+        <DroppableContainer id={id}>
+          <SortableContext
+            id={id}
+            items={tasks}
+            strategy={verticalListSortingStrategy}
+          >
+            <div ref={setNodeRef}>
+              {tasks.map((task) => (
+                <Formik
+                  key={task.id}
+                  initialValues={{
+                    title: task.title,
+                    status: task.status,
+                    description: task.description,
+                    priority: task.priority,
+                    dueDate: {
+                      startDate: task.dueDate?.startDate,
+                      endDate: task.dueDate?.endDate,
+                    },
+                    assigneeID: task.assigneeID,
+                  }}
+                  validationSchema={taskValidationSchema}
+                  enableReinitialize
+                  onSubmit={() => {}}
+                >
+                  {(formikProps) => (
+                    <FormikProvider value={formikProps}>
                       <SortableTaskItem id={task.id}>
                         <TaskItem id={task.id} task={task} />
                       </SortableTaskItem>
-                    </div>
-                  </FormikProvider>
-                )}
-              </Formik>
-            ))}
-          </div>
-        </SortableContext>
-      </DroppableContainer>
+                    </FormikProvider>
+                  )}
+                </Formik>
+              ))}
+            </div>
+          </SortableContext>
+        </DroppableContainer>
+      </div>
     </>
   );
 };
