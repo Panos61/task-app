@@ -190,8 +190,6 @@ const TaskDrawer = ({ task }: Props) => {
     }
   );
 
-  console.log(task);
-
   return (
     <div className='flex flex-col justify-between w-full'>
       <div className='flex gap-8'>
