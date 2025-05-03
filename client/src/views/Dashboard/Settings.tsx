@@ -1,7 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { useDisclosure } from '@mantine/hooks';
-import { Button, Divider, Modal } from '@mantine/core';
-import { GET_ME } from '@graphql/user/queries';
+import { Button, Divider, Modal, Skeleton } from '@mantine/core';
+
+import type { Overview } from '@graphql/user/types';
+import { GET_ME, GET_OVERVIEW } from '@graphql/user/queries';
 
 export const Settings = () => {
   const [opened, { open, close }] = useDisclosure(false);
@@ -9,6 +11,10 @@ export const Settings = () => {
     fetchPolicy: 'cache-only',
   });
   const meData = data?.me;
+
+  const { data: overviewData, loading: overviewLoading } =
+    useQuery(GET_OVERVIEW);
+  const overview: Overview = overviewData?.overview;
 
   const formatDate = (timestamp: string) => {
     const date = new Date(Number(timestamp));
@@ -78,17 +84,35 @@ export const Settings = () => {
             <div className='flex gap-8 text-center'>
               <span className='font-bold'>
                 Your Projects:{' '}
-                <span className='font-bold text-green-500'>3</span>
+                {overviewLoading ? (
+                  <Skeleton w={36} h={8} mt={4} ml={28} />
+                ) : (
+                  <span className='font-bold text-green-500'>
+                    {overview.projectCount}
+                  </span>
+                )}
               </span>
               <Divider orientation='vertical' />
               <span className='font-bold'>
                 Tasks Assigned:{' '}
-                <span className='font-bold text-text-primary'>13</span>
+                {overviewLoading ? (
+                  <Skeleton w={36} h={8} mt={4} ml={28} />
+                ) : (
+                  <span className='font-bold text-text-primary'>
+                    {overview.tasksAssigned}
+                  </span>
+                )}
               </span>
               <Divider orientation='vertical' />
               <span className='font-bold'>
                 Collaborating with:{' '}
-                <span className='font-bold text-yellow-500'>2</span>
+                {overviewLoading ? (
+                  <Skeleton w={36} h={8} mt={4} ml={28} />
+                ) : (
+                  <span className='font-bold text-yellow-500'>
+                    {overview.collaborators}
+                  </span>
+                )}
               </span>
             </div>
           </div>
