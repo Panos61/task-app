@@ -79,7 +79,7 @@ export const Overview = () => {
         ) : (
           <div className={cardCls}>
             <div className='mb-8 text-lg font-bold'>
-              My Tasks
+              Tasks Assigned
               <span className='ml-8 font-bold text-text-primary'>
                 {overview?.tasksAssigned}
               </span>
