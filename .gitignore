@@ -1,1 +1,30 @@
+# Environment files
 .env
+.env.*
+!.env.example
+!.env.production.example
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+ssl/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

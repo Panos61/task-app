@@ -1,5 +1,7 @@
 import express, { Response } from 'express';
 import http from 'http';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import {
   expressMiddleware,
   ExpressMiddlewareOptions,
@@ -7,11 +9,11 @@ import {
 import { ApolloServer, BaseContext } from '@apollo/server';
 import { GraphQLError } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
 
 import { typeDefs } from '@/schema/index.js';
 import { resolvers } from '@/schema/resolvers.js';
+
+import config from '@/config.js';
 import { getUserIDFromToken } from './utils/jwt.js';
 
 export interface Context extends ExpressMiddlewareOptions<BaseContext> {
@@ -26,59 +28,45 @@ const schema = makeExecutableSchema({
   resolvers,
 });
 
-export const createApolloServer = async () => {
-  const server = new ApolloServer<Context>({
-    schema,
-    csrfPrevention: true,
-  });
-
-  await server.start();
-  return server;
-};
-
 const app = express();
-app.use(cookieParser());
-
 const httpServer = http.createServer(app);
-const PORT = 4000;
 
-const bootstrap = async () => {
-  const server = new ApolloServer<Context>({
-    schema,
-    csrfPrevention: true,
-  });
+const PORT = config.PORT;
 
-  await server.start();
+const server = new ApolloServer<Context>({
+  schema,
+  csrfPrevention: false, // Disable CSRF for now to debug
+});
 
-  app.use(
-    '/graphql',
-    cors<cors.CorsRequest>({
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
-      credentials: true
-    }),
-    express.json(),
-    // @ts-ignore - Temporary fix for express middleware type mismatch
-    expressMiddleware(server, {
-      context: async ({ req, res }) => {
-        const token = req.cookies.token;
-        if (!token) return { user: null, res };
+await server.start();
 
-        try {
-          const userID = getUserIDFromToken(token);
-          return { user: { id: userID }, res };
-        } catch {
-          res.clearCookie('token');
-          throw new GraphQLError('Invalid token');
-        }
-      },
-    })
-  );
+app.use(cookieParser());
+app.use(
+  '/graphql',
+  cors<cors.CorsRequest>({
+    origin: ['http://localhost:5173', 'http://frontend:5173'],
+    credentials: true,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'apollo-require-preflight'],
+  }),
+  express.json(),
+  // @ts-ignore - Temporary fix for express middleware type mismatch
+  expressMiddleware(server, {
+    context: async ({ req, res }) => {
+      const token = req.cookies.token;
+      if (!token) return { user: null, res };
 
-  await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve)
-  );
+      try {
+        const userID = getUserIDFromToken(token);
+        return { user: { id: userID }, res };
+      } catch {
+        res.clearCookie('token');
+        throw new GraphQLError('Invalid token');
+      }
+    },
+  })
+);
 
-  console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
-};
-
-bootstrap().catch(console.error);
+await new Promise<void>((resolve) =>
+  httpServer.listen({ port: PORT }, resolve)
+);
