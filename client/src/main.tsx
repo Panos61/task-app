@@ -12,8 +12,13 @@ import { onError } from '@apollo/client/link/error';
 import App from './App.tsx';
 import './index.css';
 
-// Use the environment variable if available, otherwise fall back to localhost
-const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/graphql';
+// Use environment-aware API URL
+const isDevelopment = import.meta.env.DEV;
+const apiUrl = isDevelopment 
+  ? 'http://localhost:4000/graphql'  // Development
+  : '/graphql';                      // Production
+
+console.log('API URL:', apiUrl, 'Environment:', isDevelopment ? 'development' : 'production');
 
 const httpLink = createHttpLink({
   uri: apiUrl,
