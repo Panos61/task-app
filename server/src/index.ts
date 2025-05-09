@@ -53,7 +53,7 @@ app.use(
   // @ts-ignore - Temporary fix for express middleware type mismatch
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      console.log('req', req);
+      console.log('req', req.cookies);
       const token = req.cookies.token;
       console.log('token', token);
       if (!token) return { user: null, res };
