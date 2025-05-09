@@ -7,6 +7,7 @@ import type { User, Overview } from './user.model.js';
 import type { Task } from '../task/task.model.js';
 import { cookieConfig } from '../../utils/cookie.js';
 import pool from '../../utils/database.js';
+import config from '../../config.js';
 
 export class UserService {
   async me(userID: string): Promise<User> {
@@ -103,7 +104,7 @@ export class UserService {
       });
     }
 
-    const token = jwt.sign({ userID: user.id }, process.env.JWT_SECRET!, {
+    const token = jwt.sign({ userID: user.id }, config.JWT_SECRET!, {
       expiresIn: '1d',
     });
     
@@ -130,7 +131,7 @@ export class UserService {
       throw new Error('Invalid password');
     }
 
-    const token = jwt.sign({ userID: user.id }, process.env.JWT_SECRET!, {
+    const token = jwt.sign({ userID: user.id }, config.JWT_SECRET!, {
       expiresIn: '1d',
     });
 
