@@ -42,8 +42,6 @@ services:
       context: ./client
       dockerfile: Dockerfile.fixed
       target: production
-      args:
-        VITE_API_URL: ${API_URL}
     networks:
       - app-network
     ports:
@@ -52,7 +50,7 @@ services:
       - backend
     environment:
       NODE_ENV: production
-      VITE_API_URL: ${API_URL:-http://167.235.30.231:4000}
+      VITE_API_URL: ${VITE_API_URL}
 
 networks:
   app-network:
