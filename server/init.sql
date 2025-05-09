@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS projects (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(100) NOT NULL,
+    color VARCHAR(7) NOT NULL,
+    owner_id INT NOT NULL REFERENCES users(id),
+    invitation VARCHAR(12) NOT NULL,
+    task_count INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+     id SERIAL PRIMARY KEY,
+     title VARCHAR(255) NOT NULL,
+     description TEXT,
+     status VARCHAR(20) DEFAULT 'backlog',
+     priority VARCHAR(20),
+     due_date TIMESTAMP,
+     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+     assignee_id INT REFERENCES users(id) ON DELETE SET NULL,
+     start_date VARCHAR(20),
+     end_date VARCHAR(20),
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+
+CREATE TABLE IF NOT EXISTS project_users (
+	   id SERIAL PRIMARY KEY,
+     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+	   user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+	   joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
