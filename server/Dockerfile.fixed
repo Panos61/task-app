@@ -17,6 +17,8 @@ FROM base AS builder
 COPY package*.json ./
 RUN npm install
 COPY . .
+# Add this line to modify the CORS configuration before building
+RUN sed -i 's/origin: \[.*/origin: ["http:\/\/localhost:5173", "http:\/\/frontend:5173", "http:\/\/localhost", "http:\/\/localhost:80"],/g' src/index.ts
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 RUN npm run build
