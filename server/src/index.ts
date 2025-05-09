@@ -51,7 +51,7 @@ app.options('*', cors({
   origin: ['http://localhost:5173', 'http://167.235.30.231', 'http://167.235.30.231:80'],
   credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization', 'Cookie'],
+  allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization'],
 }));
 
 app.use(
@@ -60,7 +60,7 @@ app.use(
     origin: ['http://localhost:5173', 'http://167.235.30.231', 'http://167.235.30.231:80'],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization', 'Cookie'],
+    allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization'],
   }),
   express.json(),
   // @ts-ignore - Temporary fix for express middleware type mismatch
