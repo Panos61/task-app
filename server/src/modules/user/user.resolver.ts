@@ -1,5 +1,5 @@
 import { GraphQLError } from 'graphql';
-import type { Context } from '@/index.js';
+import type { Context } from '../../index.js';
 import type { LoginInput, RegisterInput } from './user.model.js';
 import { UserService } from './user.service.js';
 

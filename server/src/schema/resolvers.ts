@@ -1,6 +1,6 @@
-import { userResolvers } from '@/modules/user/user.resolver.js';
-import { projectResolvers } from '@/modules/project/project.resover.js';
-import { taskResolvers } from '@/modules/task/task.resolver.js';
+import { userResolvers } from '../modules/user/user.resolver.js';
+import { projectResolvers } from '../modules/project/project.resover.js';
+import { taskResolvers } from '../modules/task/task.resolver.js';
 
 export const resolvers = {
   Query: {

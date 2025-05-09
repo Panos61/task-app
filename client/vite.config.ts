@@ -9,5 +9,6 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     origin: 'http://0.0.0.0:5173',
-  }
+  },
+  base: '/',
 })

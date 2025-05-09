@@ -4,9 +4,9 @@ import { GraphQLError } from 'graphql';
 import type { Response } from 'express';
 
 import type { User, Overview } from './user.model.js';
-import type { Task } from '@/modules/task/task.model.js';
-import { cookieConfig } from '@/utils/cookie.js';
-import pool from '@/utils/database.js';
+import type { Task } from '../task/task.model.js';
+import { cookieConfig } from '../../utils/cookie.js';
+import pool from '../../utils/database.js';
 
 export class UserService {
   async me(userID: string): Promise<User> {

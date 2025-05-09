@@ -1,7 +1,7 @@
 import { GraphQLError } from 'graphql';
 import type { Project } from './project.model.js';
-import pool from '@/utils/database.js';
-import { generateInvitationCode } from '@/utils/invitation.js';
+import pool from '../../utils/database.js';
+import { generateInvitationCode } from '../../utils/invitation.js';
 
 export class ProjectService {
   async getProject(projectID: string): Promise<Project> {
