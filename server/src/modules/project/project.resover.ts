@@ -1,6 +1,5 @@
-// import { GraphQLError } from 'graphql';
 import type { Project } from './project.model.js';
-import type { Context } from '@/index.js';
+import type { Context } from '../../index.js';
 import { ProjectService } from './project.service.js';
 
 const projectService = new ProjectService();

@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql';
 import type { Task } from './task.model.js';
-import pool from '@/utils/database.js';
+import pool from '../../utils/database.js';
 
 export class TaskService {
   async getTask(id: string): Promise<Task> {

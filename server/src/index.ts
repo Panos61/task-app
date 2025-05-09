@@ -10,10 +10,10 @@ import { ApolloServer, BaseContext } from '@apollo/server';
 import { GraphQLError } from 'graphql';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
-import { typeDefs } from '@/schema/index.js';
-import { resolvers } from '@/schema/resolvers.js';
+import { typeDefs } from './schema/index.js';
+import { resolvers } from './schema/resolvers.js';
 
-import config from '@/config.js';
+import config from './config.js';
 import { getUserIDFromToken } from './utils/jwt.js';
 
 export interface Context extends ExpressMiddlewareOptions<BaseContext> {
