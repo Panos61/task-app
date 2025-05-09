@@ -41,6 +41,19 @@ const server = new ApolloServer<Context>({
 await server.start();
 
 app.use(cookieParser());
+
+app.use((_, res, next) => {
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
+app.options('*', cors({
+  origin: ['http://localhost:5173', 'http://167.235.30.231', 'http://167.235.30.231:80'],
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization', 'Cookie'],
+}));
+
 app.use(
   '/graphql',
   cors<cors.CorsRequest>({
