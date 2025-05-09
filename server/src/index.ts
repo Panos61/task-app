@@ -66,15 +66,7 @@ app.use(
   // @ts-ignore - Temporary fix for express middleware type mismatch
   expressMiddleware(server, {
     context: async ({ req, res }) => {
-      // Try to get token from cookie first, then from Authorization header
-      const authHeader = req.headers.authorization || '';
-      const tokenFromHeader = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-      const token = req.cookies?.token || tokenFromHeader;
-      
-      console.log('token from cookie:', req.cookies?.token);
-      console.log('token from header:', tokenFromHeader);
-      console.log('using token:', token);
-      
+      const token = req.cookies?.token;
       if (!token) return { user: null, res };
 
       try {
