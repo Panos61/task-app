@@ -44,10 +44,10 @@ app.use(cookieParser());
 app.use(
   '/graphql',
   cors<cors.CorsRequest>({
-    origin: ['http://localhost:5173', 'http://frontend:5173', 'http://167.235.30.231'],
+    origin: ['http://localhost:5173', 'http://167.235.30.231', 'http://167.235.30.231:80'],
     credentials: true,
     methods: ['GET', 'POST', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'apollo-require-preflight', 'Authorization', 'Cookie'],
   }),
   express.json(),
   // @ts-ignore - Temporary fix for express middleware type mismatch
