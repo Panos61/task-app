@@ -54,10 +54,12 @@ app.use(
   expressMiddleware(server, {
     context: async ({ req, res }) => {
       const token = req.cookies.token;
+      console.log('token', token);
       if (!token) return { user: null, res };
 
       try {
         const userID = getUserIDFromToken(token);
+        console.log('userID', userID);
         return { user: { id: userID }, res };
       } catch {
         res.clearCookie('token');

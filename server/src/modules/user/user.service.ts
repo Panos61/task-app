@@ -15,6 +15,7 @@ export class UserService {
     ]);
 
     const user = result.rows[0];
+    console.log('user', user);
     if (!user) {
       throw new GraphQLError('User not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
