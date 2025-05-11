@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { useMutation } from '@apollo/client';
 import { useLocation } from 'react-router';
 import { useDroppable } from '@dnd-kit/core';
@@ -8,12 +8,12 @@ import {
 } from '@dnd-kit/sortable';
 import { Formik, FormikProvider } from 'formik';
 import * as Yup from 'yup';
-import { useOnClickOutside } from 'usehooks-ts';
+// import { useOnClickOutside } from 'usehooks-ts';
 import { PlusIcon } from 'lucide-react';
 
 import type { Task } from '@graphql/task/types';
 import { GET_TASKS } from '@graphql/task/queries';
-import { CREATE_TASK, DELETE_TASK } from '@graphql/task/mutations';
+import { CREATE_TASK } from '@graphql/task/mutations';
 
 import { BoardSections } from './utils';
 import DroppableContainer from './DroppableContainer';
@@ -38,10 +38,10 @@ const BoardSection = ({
   id,
   title,
   tasks,
-  setBoardSections,
+  // setBoardSections,
   sectionTaskCount,
 }: Props) => {
-  const [currentTaskID, setCurrentTaskID] = useState<string | null>(null);
+  // const [currentTaskID, setCurrentTaskID] = useState<string | null>(null);
   const taskRef = useRef(null);
 
   const { pathname } = useLocation();
@@ -53,7 +53,7 @@ const BoardSection = ({
 
   const [createTask] = useMutation(CREATE_TASK, {
     update(cache, { data: { createTask } }) {
-      setCurrentTaskID(createTask.id);
+      // setCurrentTaskID(createTask.id);
       const existingTasks = cache.readQuery<{ tasks: Task[] }>({
         query: GET_TASKS,
         variables: { projectID },
@@ -78,44 +78,44 @@ const BoardSection = ({
     },
   });
 
-  const [deleteTask] = useMutation(DELETE_TASK, {
-    update(cache) {
-      cache.modify({
-        fields: {
-          tasks(existingTasks = []) {
-            return existingTasks.filter((taskRef: { __ref: string }) => {
-              const taskId = cache.identify({
-                id: currentTaskID,
-                __typename: 'Task',
-              });
-              return taskRef.__ref !== taskId;
-            });
-          },
-        },
-      });
+  // const [deleteTask] = useMutation(DELETE_TASK, {
+  //   update(cache) {
+  //     cache.modify({
+  //       fields: {
+  //         tasks(existingTasks = []) {
+  //           return existingTasks.filter((taskRef: { __ref: string }) => {
+  //             const taskId = cache.identify({
+  //               id: currentTaskID,
+  //               __typename: 'Task',
+  //             });
+  //             return taskRef.__ref !== taskId;
+  //           });
+  //         },
+  //       },
+  //     });
 
-      cache.modify({
-        id: cache.identify({ __typename: 'Project', id: projectID }),
-        fields: {
-          taskCount(existingCount) {
-            return existingCount - 1;
-          },
-        },
-      });
-    },
-    onCompleted: () => {
-      setBoardSections((prev: BoardSections) => {
-        const newSections = { ...prev } as BoardSections;
-        Object.keys(newSections).forEach((key) => {
-          newSections[key] = newSections[key].filter(
-            (task) => task.id !== currentTaskID
-          );
-        });
-        return newSections;
-      });
-      setCurrentTaskID(null);
-    },
-  });
+  //     cache.modify({
+  //       id: cache.identify({ __typename: 'Project', id: projectID }),
+  //       fields: {
+  //         taskCount(existingCount) {
+  //           return existingCount - 1;
+  //         },
+  //       },
+  //     });
+  //   },
+  //   onCompleted: () => {
+  //     setBoardSections((prev: BoardSections) => {
+  //       const newSections = { ...prev } as BoardSections;
+  //       Object.keys(newSections).forEach((key) => {
+  //         newSections[key] = newSections[key].filter(
+  //           (task) => task.id !== currentTaskID
+  //         );
+  //       });
+  //       return newSections;
+  //     });
+  //     setCurrentTaskID(null);
+  //   },
+  // });
 
   const handleCreateTask = () => {
     const taskStatus = id;
@@ -128,42 +128,42 @@ const BoardSection = ({
           assigneeID: null,
         },
       },
-      onCompleted: (data) => {
-        setCurrentTaskID(data.createTask.id);
-      },
+      // onCompleted: (data) => {
+      //   setCurrentTaskID(data.createTask.id);
+      // },
       onError: (error) => {
         console.error('Error creating task:', error);
       },
     });
   };
 
-  const handleTaskRemoval = () => {
-    deleteTask({
-      variables: { taskID: currentTaskID },
-      onCompleted: () => {
-        setBoardSections((prev: BoardSections) => {
-          const newSections = { ...prev } as BoardSections;
-          Object.keys(newSections).forEach((key) => {
-            newSections[key] = newSections[key].filter(
-              (task) => task.id !== currentTaskID
-            );
-          });
+  // const handleTaskRemoval = () => {
+  //   deleteTask({
+  //     variables: { taskID: currentTaskID },
+  //     onCompleted: () => {
+  //       setBoardSections((prev: BoardSections) => {
+  //         const newSections = { ...prev } as BoardSections;
+  //         Object.keys(newSections).forEach((key) => {
+  //           newSections[key] = newSections[key].filter(
+  //             (task) => task.id !== currentTaskID
+  //           );
+  //         });
 
-          return newSections;
-        });
-        setCurrentTaskID(null);
-      },
-    });
-  };
+  //         return newSections;
+  //       });
+  //       setCurrentTaskID(null);
+  //     },
+  //   });
+  // };
 
-  useOnClickOutside(taskRef, () => {
-    if (currentTaskID) {
-      const task = tasks.find((task) => task.id === currentTaskID);
-      if (task && task.title === '') {
-        handleTaskRemoval();
-      }
-    }
-  });
+  // useOnClickOutside(taskRef, () => {
+  //   if (currentTaskID) {
+  //     const task = tasks.find((task) => task.id === currentTaskID);
+  //     if (task && task.title === '') {
+  //       handleTaskRemoval();
+  //     }
+  //   }
+  // });
 
   const renderTitle = (title: string) => {
     let formattedTitle: string;

@@ -61,7 +61,7 @@ const GanttView = ({ tasks }: GanttViewProps) => {
               Print Preview
             </Button>
             <span className='text-sm text-gray-400/95'>
-              This will open a print preview of the Gantt chart.
+              This will open a print preview of this Gantt chart.
             </span>
           </div>
         </div>
