@@ -86,7 +86,6 @@ export class ProjectService {
       );
 
       await pool.query('COMMIT');
-      console.log('project created', project);
       return project;
     } catch (error) {
       console.error(error);
