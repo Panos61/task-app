@@ -102,6 +102,15 @@ const TaskDrawer = ({ task }: Props) => {
           },
         },
       });
+      
+      cache.modify({
+        id: cache.identify({ __typename: 'Project', id: projectID }),
+        fields: {
+          taskCount(existingCount) {
+            return existingCount - 1;
+          },
+        },
+      });
     },
   });
 

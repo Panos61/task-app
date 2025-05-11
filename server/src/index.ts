@@ -73,7 +73,6 @@ app.use(
         const userID = getUserIDFromToken(token);
         return { user: { id: userID }, res };
       } catch (error) {
-        console.error('JWT verification error:', error);
         res.clearCookie('token');
         throw new GraphQLError('Invalid token');
       }
@@ -84,3 +83,5 @@ app.use(
 await new Promise<void>((resolve) =>
   httpServer.listen({ port: PORT }, resolve)
 );
+
+console.log(`Server is running on port ${PORT}`);

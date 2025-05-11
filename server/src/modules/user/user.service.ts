@@ -16,7 +16,6 @@ export class UserService {
     ]);
 
     const user = result.rows[0];
-    console.log('user', user);
     if (!user) {
       throw new GraphQLError('User not found', {
         extensions: { code: 'NOT_FOUND', http: { status: 404 } },
@@ -123,21 +122,16 @@ export class UserService {
     const user: User = result.rows[0];
 
     if (!user) {
-      console.log('user not found');
       throw new Error('User not found');
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      console.log('invalid password');
       throw new Error('Invalid password');
     }
-    console.log('user id login', user.id);
     const token = jwt.sign({ userID: user.id }, config.JWT_SECRET!, {
       expiresIn: '1d',
     });
-
-    console.log('token login', token);
 
     res.cookie('token', token, cookieConfig);
     return { user, token };

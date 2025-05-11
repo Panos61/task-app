@@ -39,11 +39,4 @@ if (missingEnvVars.length > 0) {
   }
 }
 
-// Log the configuration at startup
-console.log('Environment configuration loaded:', {
-  ...config,
-  DB_PASSWORD: config.DB_PASSWORD ? '[REDACTED]' : '[MISSING]',
-  JWT_SECRET: config.JWT_SECRET ? '[REDACTED]' : '[MISSING]',
-});
-
 export default config; 

@@ -66,6 +66,15 @@ const BoardSection = ({
           tasks: [...(existingTasks?.tasks || []), createTask],
         },
       });
+
+      cache.modify({
+        id: cache.identify({ __typename: 'Project', id: projectID }),
+        fields: {
+          taskCount(existingCount: number) {
+            return existingCount + 1;
+          },
+        },
+      });
     },
   });
 
@@ -81,6 +90,15 @@ const BoardSection = ({
               });
               return taskRef.__ref !== taskId;
             });
+          },
+        },
+      });
+
+      cache.modify({
+        id: cache.identify({ __typename: 'Project', id: projectID }),
+        fields: {
+          taskCount(existingCount) {
+            return existingCount - 1;
           },
         },
       });

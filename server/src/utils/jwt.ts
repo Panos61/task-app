@@ -6,7 +6,6 @@ export const isTokenValid = (token: string): boolean => {
   if (!decoded) {
     throw new Error('Invalid token');
   }
-  console.log('decoded', decoded);
 
   return true;
 };
