@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { Button, Divider, Skeleton } from '@mantine/core';
-import { useClipboard } from '@mantine/hooks';
+import { useCopyToClipboard } from 'usehooks-ts';
 import { CopyIcon, ChartBarIcon } from 'lucide-react';
 
 import { GET_PROJECT } from '@graphql/project/queries';
@@ -12,12 +13,19 @@ interface Props {
 }
 
 const Header = ({ projectID, renderGantt, setRenderGantt }: Props) => {
-  const clipboard = useClipboard({ timeout: 500 });
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, copy] = useCopyToClipboard();
+  const [isCopied, setIsCopied] = useState(false);
   const { data: projectData, loading: projectLoading } = useQuery(GET_PROJECT, {
     variables: { projectID },
   });
   const project = projectData?.project;
+
+  setTimeout(() => {
+    if (isCopied) {
+      setIsCopied(false);
+    }
+  }, 1000);
 
   if (projectLoading)
     return <Skeleton height={12} mt={12} ml={72} width='16%' radius='xl' />;
@@ -36,10 +44,11 @@ const Header = ({ projectID, renderGantt, setRenderGantt }: Props) => {
           <div
             className='flex gap-8 items-center cursor-pointer'
             onClick={() => {
-              clipboard.copy(project?.invitation);
+              copy(project?.invitation);
+              setIsCopied(true);
             }}
           >
-            {clipboard.copied ? (
+            {isCopied ? (
               <span className='text-sm text-gray-400/95'>Copied</span>
             ) : (
               <>
@@ -58,7 +67,7 @@ const Header = ({ projectID, renderGantt, setRenderGantt }: Props) => {
             </span>
           </div>
         </div>
-        <div className='mr-24 p-0 m-0'>
+        <div className='mr-24'>
           <Button
             size='xs'
             variant='light'
@@ -66,7 +75,7 @@ const Header = ({ projectID, renderGantt, setRenderGantt }: Props) => {
               setRenderGantt(!renderGantt);
             }}
           >
-            <div className='flex gap-4 items-center'>
+            <div className='flex items-center gap-4'>
               {renderGantt ? 'Hide Gantt Chart' : 'Display Gantt Chart'}
               <ChartBarIcon size={16} />
             </div>
