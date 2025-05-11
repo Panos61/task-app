@@ -6,10 +6,10 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Avatar, Badge, Drawer } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Check } from 'lucide-react';
+import { Check, Trash2Icon } from 'lucide-react';
 
 import type { Task } from '@graphql/task/types';
-import { UPDATE_TASK } from '@graphql/task/mutations';
+import { UPDATE_TASK, DELETE_TASK } from '@graphql/task/mutations';
 
 import { useDebounce } from '../utils/useDebounce';
 import Celebration from '../components/Celebration';
@@ -21,7 +21,7 @@ interface Props {
 }
 
 const TaskItem = ({ id, task }: Props) => {
-  const { assignee, assigneeID, dueDate, priority, status } = task;
+  const { assignee, assigneeID, projectID, dueDate, priority, status } = task;
   const { startDate, endDate } = dueDate;
 
   const [opened, { open, close }] = useDisclosure(false);
@@ -34,7 +34,34 @@ const TaskItem = ({ id, task }: Props) => {
   const { values, setFieldValue } = useFormikContext<Task>();
 
   const [updateTask] = useMutation(UPDATE_TASK);
-
+  
+  const [deleteTask] = useMutation(DELETE_TASK, {
+    update(cache) {
+      cache.modify({
+        fields: {
+          tasks(existingTasks = []) {
+            return existingTasks.filter((taskRef: { __ref: string }) => {
+              const taskId = cache.identify({
+                id: task?.id,
+                __typename: 'Task',
+              });
+              return taskRef.__ref !== taskId;
+            });
+          },
+        },
+      });
+      
+      cache.modify({
+        id: cache.identify({ __typename: 'Project', id: projectID }),
+        fields: {
+          taskCount(existingCount) {
+            return existingCount - 1;
+          },
+        },
+      });
+    },
+  });
+  
   const debouncedUpdate = useDebounce((updates: Partial<Task>) => {
     updateTask({
       variables: {
@@ -57,6 +84,13 @@ const TaskItem = ({ id, task }: Props) => {
 
     debouncedUpdate({ status: 'done' });
     setShowCelebration(true);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    deleteTask({ variables: { taskID: parseInt(task.id) } });
   };
 
   const checkStyle = classNames(
@@ -139,6 +173,13 @@ const TaskItem = ({ id, task }: Props) => {
                     *Nameless task
                   </p>
                 )}
+              </div>
+              <div className='mt-4'>
+                <Trash2Icon
+                  size={16}
+                  className='cursor-pointer duration-150 hover:text-red-500'
+                  onClick={handleDelete}
+                />
               </div>
             </div>
             <div className='flex gap-8'>
