@@ -169,9 +169,7 @@ const TaskItem = ({ id, task }: Props) => {
                   <h3>{values.title}</h3>
                 )}
                 {values.title === '' && (
-                  <p className='text-[13px] text-yellow-300'>
-                    *Nameless task
-                  </p>
+                  <p className='text-[13px] text-yellow-300'>Untitled</p>
                 )}
               </div>
               <div className='mt-4'>

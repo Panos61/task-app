@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
+import { useNavigate } from 'react-router';
 import { Formik, Form, FieldProps, Field } from 'formik';
 import { TextInput, Button, ColorInput } from '@mantine/core';
 import * as Yup from 'yup';
@@ -18,6 +19,8 @@ const formValidation = Yup.object({
 });
 
 export const CreateProject = () => {
+  const navigate = useNavigate();
+
   const { data } = useQuery(GET_ME, {
     fetchPolicy: 'cache-only',
   });
@@ -40,6 +43,18 @@ export const CreateProject = () => {
           ],
         },
       });
+      
+      cache.modify({
+        id: cache.identify({ __typename: 'UserOverview', id: meData?.id }),
+        fields: {
+          projectCount(existingCount) {
+            return existingCount + 1;
+          },
+        },
+      });
+    },
+    onCompleted: ({ createProject }) => {
+      navigate(`/dashboard/board/${createProject.id}`);
     },
   });
 

@@ -73,7 +73,24 @@ export const Overview = () => {
           </div>
         </div>
       </div>
-      <div className='flex flex-col items-center gap-12 xlg:flex-row'>
+      <div className='flex flex-col gap-8 mb-24'>
+        <span className='text-lg font-semibold'>Collaborate in a project</span>
+        <span className='text-sm'>
+          Enter the project code and it will appear in your project's list.
+        </span>
+        <div className='flex items-center gap-12'>
+          <Input
+            placeholder='Enter the project code..'
+            value={invitation}
+            onChange={(e) => setInvitation(e.target.value)}
+          />
+          <Button variant='filled' onClick={handleJoinProject}>
+            {loading ? 'Joining project...' : 'Collaborate 💪'}
+          </Button>
+        </div>
+        {error && <span className='text-red-500'>{error.message}</span>}
+      </div>
+      <div className='flex flex-col items-center gap-16 xlg:flex-row'>
         {overviewLoading ? (
           <Skeleton w={500} h={400} animate={false} />
         ) : (
@@ -97,7 +114,15 @@ export const Overview = () => {
                     >
                       <div className='flex justify-between w-full'>
                         <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
-                          <div className='ml-4'>{task.title}</div>
+                          <div className='ml-4'>
+                            {task.title ? (
+                              task.title
+                            ) : (
+                              <p className='text-[13px] text-yellow-300'>
+                                Untitled
+                              </p>
+                            )}
+                          </div>
                           <Divider orientation='vertical' />
                           <div className='flex gap-4 text-sm'>
                             <span>status: </span>
@@ -159,21 +184,6 @@ export const Overview = () => {
             </ScrollArea>
           </div>
         )}
-      </div>
-      <div className='flex flex-col gap-12 w-[500px] p-20 border border-gray-400/20 rounded-12'>
-        <span className='text-lg font-semibold'>Collaborate in a project</span>
-        <span className='text-sm'>
-          Enter the project code and it will appear in your project's list.
-        </span>
-        <Input
-          placeholder='Enter the project code..'
-          value={invitation}
-          onChange={(e) => setInvitation(e.target.value)}
-        />
-        <Button variant='filled' onClick={handleJoinProject}>
-          {loading ? 'Joining project...' : 'Collaborate 💪'}
-        </Button>
-        {error && <span className='text-red-500'>{error.message}</span>}
       </div>
     </div>
   );
