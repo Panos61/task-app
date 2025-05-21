@@ -142,7 +142,7 @@ const TaskItem = ({ id, task }: Props) => {
         {...attributes}
         {...listeners}
       >
-        <div className='flex flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-400/20 bg-gray-700/25 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-400/50'>
+        <div className='flex flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-500/20 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-400/50'>
           <div className='flex flex-col gap-4 ml-16'>
             <div className='flex gap-8 mr-12'>
               <div className={checkStyle} onClick={handleCheck}>
@@ -198,11 +198,11 @@ const TaskItem = ({ id, task }: Props) => {
                   color='gray'
                   className='mb-8'
                 >
-                  <span className='text-green-400/65'>{startDate}</span>
+                  <span className='text-green-500'>{startDate}</span>
                   {endDate && (
                     <>
                       <span className='text-gray-400/95'> - </span>
-                      <span className='text-red-500/85'>{endDate}</span>
+                      <span className='text-red-500'>{endDate}</span>
                     </>
                   )}
                 </Badge>

@@ -177,7 +177,7 @@ const BoardSection = ({
     <>
       <div className='flex items-center gap-4 mb-8 ml-12'>
         <span className='text-lg font-bold'>{renderTitle(title)}</span>
-        <span className='self-end text-sm text-gray-400'>
+        <span className='self-end text-sm text-gray-500'>
           {sectionTaskCount[id as keyof typeof sectionTaskCount]}
         </span>
         <div
