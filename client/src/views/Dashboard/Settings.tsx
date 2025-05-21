@@ -45,7 +45,7 @@ export const Settings = () => {
     <>
       {renderDeletionModal()}
       <div className='flex flex-col items-center gap-12 mt-36'>
-        <div className='flex flex-col items-center justify-center h-full w-[500px] p-24 border border-gray-400/20 rounded-12'>
+        <div className='flex flex-col items-center justify-center h-full w-[500px] p-24 border border-gray-500/40 rounded-12'>
           <div className='flex flex-col gap-12 text-center'>
             <h3 className='text-2xl font-bold'>Settings</h3>
             <p className='text-md'>

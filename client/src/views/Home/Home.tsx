@@ -13,7 +13,7 @@ export const Home = () => {
     <div className='flex flex-col items-center justify-center h-screen bg-cover bg-fixed'>
       <p className='text-2xl font-bold mb-24'>Welcome to Task Management App</p>
 
-      <div className='flex flex-col items-center gap-12 w-[500px] p-24 border bg-custom-bg border-gray-400 rounded-12'>
+      <div className='flex flex-col items-center gap-12 w-[500px] p-24 border bg-custom-bg border-gray-500/40 rounded-12'>
         <div className='flex flex-col items-center gap-8'>
           <p className='text-xs text-text-primary'>
             Start managing your task board.

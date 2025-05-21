@@ -142,7 +142,7 @@ const TaskItem = ({ id, task }: Props) => {
         {...attributes}
         {...listeners}
       >
-        <div className='flex flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-500/20 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-400/50'>
+        <div className='flex flex-col justify-center gap-12 py-12 my-8 mx-4 border border-gray-500/20 rounded-12 cursor-grab active:cursor-grabbing duration-300 hover:border-gray-600/60'>
           <div className='flex flex-col gap-4 ml-16'>
             <div className='flex gap-8 mr-12'>
               <div className={checkStyle} onClick={handleCheck}>
