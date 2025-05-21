@@ -45,7 +45,7 @@ const App = () => {
   ]);
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme='dark'>
+    <MantineProvider theme={theme} defaultColorScheme='light'>
       <RouterProvider router={router} />
     </MantineProvider>
   );

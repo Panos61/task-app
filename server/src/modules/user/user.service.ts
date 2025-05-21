@@ -52,6 +52,10 @@ export class UserService {
       [userID]
     );
     const projects = projectsResult.rows;
+    const projectData = projectsResult.rows.map((project) => ({
+      ...project,
+      taskCount: project.task_count,
+    }));
 
     const tasksResult = await pool.query(
       'SELECT * FROM tasks WHERE assignee_id = $1',
@@ -78,7 +82,7 @@ export class UserService {
       tasksCompleted: taskCompleted,
       tasksAssigned: tasks.length,
       collaborators: collaborators,
-      projects: projects,
+      projects: projectData,
       tasks: tasks,
     };
   }

@@ -43,6 +43,8 @@ export const Overview = () => {
   const cardCls =
     'flex flex-col gap-12 w-full h-[300px] p-20 border border-gray-400/20 rounded-12';
 
+  console.log(projects);
+
   return (
     <div className='flex flex-col items-center gap-32 h-full mx-24'>
       <div className='flex flex-col items-center gap-12 mt-48'>
@@ -50,7 +52,7 @@ export const Overview = () => {
         <span className='text-3xl font-bold'>
           Welcome {meData?.username} 👋
         </span>
-        <div className='flex gap-8 p-20 rounded-3xl bg-gray-700/40'>
+        <div className='flex gap-8 p-20 rounded-3xl bg-gray-300/40'>
           <div className='flex gap-8'>
             <span className='text-lg font-bold'>Projects</span>
             <span className='text-lg font-bold text-text-primary'>
@@ -113,7 +115,7 @@ export const Overview = () => {
                       className='flex flex-col justify-start gap-12 w-full'
                     >
                       <div className='flex justify-between w-full'>
-                        <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
+                        <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-300/40 duration-300 border border-gray-400/20 hover:bg-gray-300/60 cursor-pointer'>
                           <div className='ml-4'>
                             {task.title ? (
                               task.title
@@ -164,7 +166,7 @@ export const Overview = () => {
                         }
                       >
                         <div className='flex justify-between w-full'>
-                          <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-700/20 duration-300 border border-gray-400/20 hover:bg-gray-700/40 cursor-pointer'>
+                          <div className='flex items-center gap-8 w-full p-8 rounded-12 bg-gray-300/40 duration-300 border border-gray-400/20 hover:bg-gray-300/60 cursor-pointer'>
                             <div
                               className='ml-4 size-16 self-center rounded-4'
                               style={{ backgroundColor: project.color }}
@@ -172,8 +174,10 @@ export const Overview = () => {
                             <div>{project.name}</div>
                             <Divider orientation='vertical' />
                             <div className='flex gap-4 text-sm'>
-                              <span>Tasks</span>
-                              {project.taskCount}
+                              <span>Tasks: </span>
+                              <span className='font-bold text-text-primary'>
+                                {project.taskCount}
+                              </span>
                             </div>
                           </div>
                         </div>

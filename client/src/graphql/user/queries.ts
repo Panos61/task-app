@@ -31,6 +31,7 @@ export const GET_OVERVIEW = gql`
         id
         name
         color
+        taskCount
       }
       tasks { 
         id
